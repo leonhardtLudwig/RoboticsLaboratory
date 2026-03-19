@@ -60,7 +60,7 @@ T_SIM = 10;
 
 %% 1.4 Sim_tracking
 
-T_s = 0.04;  % 0.001 ; 0.04 ; 0.1
+T_s = 0.1;  % 0.001 ; 0.04 ; 0.1
 
 % tracking works but error grows with T_s
 
@@ -74,13 +74,28 @@ Q_INIT_LOC = Q_INIT;
 
 t = out.q.time;
 
-q_actual = out.q.signals.values;
-q_loc_euler = out.q_loc_euler.signals.values;
-q_loc_rk2 = out.q_loc_rk2.signals.values;
-q_loc_exact = out.q_loc_exact.signals.values;
+q_actual = out.q_actual_sim.signals.values;
+q_eul = out.q_euler_sim.signals.values;
+q_rk2 = out.q_rk2_sim.signals.values;
+q_exa = out.q_exact_sim.signals.values;
+
+% 3. Richiama la funzione per generare i grafici
+plot_localization_results(t, q_act, q_eul, q_rk2, q_exa);
+% Extract state data
+t = q_data.time;
+
+q_data = simOut.get('q_sim');
+q_plot = q_data.signals.values;
+
+z_data = simOut.get('z_sim');
+z_plot = z_data.signals.values;
+
+v_ch_data = simOut.get('v_chained_sim');
+v_ch_plot = v_ch_data.signals.values
+
+plot_localization_results(out.sim_q.time, out.sim_q, out.sim_q_loc_euler, out.sim_q_loc_RK2, out.sim_q_loc_exact);
 
 
-plot_localization_results(t, q_actual, q_loc_euler, q_loc_rk2, q_loc_exact);
 
 
 %%
