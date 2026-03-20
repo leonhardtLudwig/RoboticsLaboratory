@@ -64,7 +64,7 @@ T_s = 0.04;  % 0.001 ; 0.04 ; 0.1
 
 % tracking works but error grows with T_s
 
-%% 1.5 Sim_localization
+%% 1.5 Sim_localization (manual)
 
 Q_INIT_LOC = Q_INIT;
 % (eventually with initial error)
@@ -80,8 +80,57 @@ q_loc_rk2 = out.q_loc_rk2.signals.values;
 q_loc_exact = out.q_loc_exact.signals.values;
 
 
-plot_localization_results(t, q_actual, q_loc_euler, q_loc_rk2, q_loc_exact);
+plot_localization_results(q_actual, q_loc_euler, q_loc_rk2, q_loc_exact);
 
+%% 1.5 Sim_localization (Automatic)
+
+Ts_values = [0.1, 0.04, 0.001];
+error_cases = [0, 1]; % 0 = without error, 1 = with initial error
+
+simulink_model_name = 'Sim_localization_1_3'; 
+
+for i = 1:length(Ts_values)
+    T_s = Ts_values(i);
+    
+    for j = 1:2
+        if error_cases(j) == 0
+            fprintf('Execution: T_s = %.3f | WITHOUT initial error\n', T_s);
+            Q_INIT_LOC = Q_INIT; 
+        else
+            fprintf('Execution: T_s = %.3f | WITH initial error\n', T_s);
+            
+            % Insert an arbitrary error (e.g., 20 cm in X and Y, and 15 degrees)
+            Q_INIT_LOC = Q_INIT + [0.2; 0.2; deg2rad(15)]; 
+        end
+        
+        % 1. Run the simulation automatically
+        out = sim(simulink_model_name);
+        
+        % 2. Data extraction
+        q_actual = out.q.signals.values;
+        q_loc_euler = out.q_loc_euler.signals.values;
+        q_loc_rk2 = out.q_loc_rk2.signals.values;
+        q_loc_exact = out.q_loc_exact.signals.values;
+        
+        % 3. Plot results
+        plot_localization_results(q_actual, q_loc_euler, q_loc_rk2, q_loc_exact);
+        
+        name = sprintf('T_s = %.3f | Error = %d', T_s, error_cases(j));
+
+        fig_path = findobj('Type', 'Figure', 'Name', 'Localization Paths (X-Y)');
+        set(fig_path, 'Name', ['Path 2D: ', name]);
+
+        % Pause to analyze the plots before the next iteration
+        %disp('Press any key in the Command Window to continue...');
+        %pause; 
+        
+        % close all; % Close figures to avoid cluttering the screen
+    end
+end
+
+% ANALYSIS: all 3 methods accumulates drift error and they are not so
+% precise even with T_s = 0.001;
+% Euler is less precise but with T_s small it converges to the others 
 
 %%
 

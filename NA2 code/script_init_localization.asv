@@ -60,11 +60,11 @@ T_SIM = 10;
 
 %% 1.4 Sim_tracking
 
-T_s = 0.1;  % 0.001 ; 0.04 ; 0.1
+T_s = 0.04;  % 0.001 ; 0.04 ; 0.1
 
 % tracking works but error grows with T_s
 
-%% 1.5 Sim_localization
+%% 1.5 Sim_localization (manual)
 
 Q_INIT_LOC = Q_INIT;
 % (eventually with initial error)
@@ -74,29 +74,64 @@ Q_INIT_LOC = Q_INIT;
 
 t = out.q.time;
 
-q_actual = out.q_actual_sim.signals.values;
-q_eul = out.q_euler_sim.signals.values;
-q_rk2 = out.q_rk2_sim.signals.values;
-q_exa = out.q_exact_sim.signals.values;
-
-% 3. Richiama la funzione per generare i grafici
-plot_localization_results(t, q_act, q_eul, q_rk2, q_exa);
-% Extract state data
-t = q_data.time;
-
-q_data = simOut.get('q_sim');
-q_plot = q_data.signals.values;
-
-z_data = simOut.get('z_sim');
-z_plot = z_data.signals.values;
-
-v_ch_data = simOut.get('v_chained_sim');
-v_ch_plot = v_ch_data.signals.values
-
-plot_localization_results(out.sim_q.time, out.sim_q, out.sim_q_loc_euler, out.sim_q_loc_RK2, out.sim_q_loc_exact);
+q_actual = out.q.signals.values;
+q_loc_euler = out.q_loc_euler.signals.values;
+q_loc_rk2 = out.q_loc_rk2.signals.values;
+q_loc_exact = out.q_loc_exact.signals.values;
 
 
+plot_localization_results(q_actual, q_loc_euler, q_loc_rk2, q_loc_exact);
 
+%% 1.5 Sim_localization (Automatic)
+
+Ts_values = [0.1, 0.04, 0.001];
+error_cases = [0, 1]; % 0 = without error, 1 = with initial error
+
+simulink_model_name = 'Sim_localization_1_3'; 
+
+for i = 1:length(Ts_values)
+    T_s = Ts_values(i);
+    
+    for j = 1:2
+        if error_cases(j) == 0
+            fprintf('Execution: T_s = %.3f | WITHOUT initial error\n', T_s);
+            Q_INIT_LOC = Q_INIT; 
+        else
+            fprintf('Execution: T_s = %.3f | WITH initial error\n', T_s);
+            
+            % Insert an arbitrary error (e.g., 20 cm in X and Y, and 15 degrees)
+            Q_INIT_LOC = Q_INIT + [0.2; 0.2; deg2rad(15)]; 
+        end
+        
+        % 1. Run the simulation automatically
+        out = sim(simulink_model_name);
+        
+        % 2. Data extraction
+        q_actual = out.q.signals.values;
+        q_loc_euler = out.q_loc_euler.signals.values;
+        q_loc_rk2 = out.q_loc_rk2.signals.values;
+        q_loc_exact = out.q_loc_exact.signals.values;
+        
+        % 3. Plot results
+        plot_localization_results(q_actual, q_loc_euler, q_loc_rk2, q_loc_exact);
+        
+        name = sprintf('T_s = %.3f | Error = %d', T_s, error_cases(j));
+
+
+        % findobj cerca la figura precedente usando il nome hardcoded che le avevi dato
+        fig_path = findobj('Type', 'Figure', 'Name', 'Localization Paths (X-Y)');
+        if ~isempty(fig_path)
+            set(fig_path, 'Name', ['Path 2D: ', custom_label]);
+        end
+
+
+        % Pause to analyze the plots before the next iteration
+        %disp('Press any key in the Command Window to continue...');
+        %pause; 
+        
+        % close all; % Close figures to avoid cluttering the screen
+    end
+end
 
 %%
 

@@ -1,4 +1,4 @@
-function plot_localization_results(t, q_actual, q_euler, q_rk2, q_exact)
+function plot_localization_results(q_actual, q_euler, q_rk2, q_exact)
 
 %   PLOT_LOCALIZATION_RESULTS Compares the estimated trajectories with the actual one.
     
