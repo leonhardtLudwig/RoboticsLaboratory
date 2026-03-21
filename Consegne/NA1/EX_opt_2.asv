@@ -1,0 +1,17 @@
+clear all;
+close all;
+addpath(genpath('utils'));
+
+%% 
+
+T_SIMULATION = 1;
+ki = 10;
+kf = 10;
+
+T_s = 1e-3;
+t = 0:T_s:T_SIMULATION;
+[s,s_dot] = time_law_constant(t,T_SIMULATION);
+
+qi = [-1;-1;pi/2];
+qf = [1;1;pi/2];
+
