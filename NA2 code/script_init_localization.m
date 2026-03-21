@@ -10,19 +10,11 @@ r_actual = 0.031;
 d_actual = 0.164;
 % wheels angles init
 PHI_INIT = [0;0];
+
+
 %% Eight-shape trajectory parameters
 R = 0.4;
 omega_trj = 2*pi;
-
-%% EKF parameters
-% EKF initil covariance
-P_INIT_EKF = diag([0.001, 0.001, 0.0175/6, 0.0175/6, 0.0175/6, 0.0175/6*T_s, 0.0175/6*T_s].^2);
-% EKF process covariance
-D = diag([0.001, 0.001, 0.0175/6, 0.0175/6, 0.0175/6, 0.0175/6*T_s, 0.0175/6*T_s].^2);
-% EKF measurement noise (delta wheels angles)
-R_2 = diag([ENCODER_QUANRIZATION/6,ENCODER_QUANRIZATION/6].^2);
-% EKF measurement noise (GPS + delta wheels angles)
-R_4 = diag(([0.001, 0.001, ENCODER_QUANRIZATION/6,ENCODER_QUANRIZATION/6]).^2);
 
 %% Get an eight-shaped geometric path
 
@@ -60,20 +52,49 @@ T_SIM = 10;
 
 %% 1.4 Sim_tracking
 
-T_s = 0.04;  % 0.001 ; 0.04 ; 0.1
+T_s = 0.1;  % 0.001 ; 0.04 ; 0.1
 
-% tracking works but error grows with T_s
+%%
+simulink_model_name = 'Sim_tracking_1_3_4'; 
+out = sim(simulink_model_name);
+
+q_actual = out.q.signals.values;
+
+plot_unicycle_2D(q_actual, 50);
+
+% tracking works perfectly with all 3 T_s. Error start growing a bit with
+% 0.1
+
+%% EKF parameters
+
+ENCODER_QUANTIZATION = 2 * pi / 4096;
+
+% EKF initil covariance
+P_INIT_EKF = diag([0.001, 0.001, 0.0175/6, 0.0175/6, 0.0175/6, 0.0175/6*T_s, 0.0175/6*T_s].^2);
+% EKF process covariance
+D = diag([0.001, 0.001, 0.0175/6, 0.0175/6, 0.0175/6, 0.0175/6*T_s, 0.0175/6*T_s].^2);
+% EKF measurement noise (delta wheels angles)
+R_2 = diag([ENCODER_QUANTIZATION/6,ENCODER_QUANTIZATION/6].^2);
+% EKF measurement noise (GPS + delta wheels angles)
+R_4 = diag(([0.001, 0.001, ENCODER_QUANTIZATION/6,ENCODER_QUANTIZATION/6]).^2);
+
+Z_INIT_EKF = [Q_INIT; 0; 0; 0; 0]; 
 
 %% 1.5 Sim_localization (manual)
 
+Ts_values = [0.1, 0.04, 0.001];
+T_s = Ts_values(1);
+
 Q_INIT_LOC = Q_INIT;
+%Q_INIT_LOC = Q_INIT + [0.2; 0.2; deg2rad(15)]; 
 % (eventually with initial error)
 
 %% plot localization state q vs the true state q
 
+simulink_model_name = 'Sim_localization_1_5_6_7'; 
+out = sim(simulink_model_name);
 
-t = out.q.time;
-
+% t = out.q.time;
 q_actual = out.q.signals.values;
 q_loc_euler = out.q_loc_euler.signals.values;
 q_loc_rk2 = out.q_loc_rk2.signals.values;
@@ -83,42 +104,46 @@ q_loc_exact = out.q_loc_exact.signals.values;
 plot_localization_results(q_actual, q_loc_euler, q_loc_rk2, q_loc_exact);
 
 %% 1.5 Sim_localization (Automatic)
-
 Ts_values = [0.1, 0.04, 0.001];
 error_cases = [0, 1]; % 0 = without error, 1 = with initial error
+simulink_model_name = 'Sim_localization_1_5_6_7'; 
 
-simulink_model_name = 'Sim_localization_1_3'; 
+% Preallocate results matrix
+results_loc(length(Ts_values),length(error_cases)) = [];
 
 for i = 1:length(Ts_values)
     T_s = Ts_values(i);
     
-    for j = 1:2
+    for j = 1:length(error_cases)
         if error_cases(j) == 0
             fprintf('Execution: T_s = %.3f | WITHOUT initial error\n', T_s);
             Q_INIT_LOC = Q_INIT; 
         else
             fprintf('Execution: T_s = %.3f | WITH initial error\n', T_s);
-            
-            % Insert an arbitrary error (e.g., 20 cm in X and Y, and 15 degrees)
             Q_INIT_LOC = Q_INIT + [0.2; 0.2; deg2rad(15)]; 
         end
         
         % 1. Run the simulation automatically
         out = sim(simulink_model_name);
         
-        % 2. Data extraction
-        q_actual = out.q.signals.values;
-        q_loc_euler = out.q_loc_euler.signals.values;
-        q_loc_rk2 = out.q_loc_rk2.signals.values;
-        q_loc_exact = out.q_loc_exact.signals.values;
+        % 2. Data extraction and saving into a structured array
+        results_loc(i, j).Ts = T_s;
+        results_loc(i, j).initial_error = error_cases(j);
+        results_loc(i, j).q_actual = out.q.signals.values;
+        results_loc(i, j).q_loc_euler = out.q_loc_euler.signals.values;
+        results_loc(i, j).q_loc_rk2 = out.q_loc_rk2.signals.values;
+        results_loc(i, j).q_loc_exact = out.q_loc_exact.signals.values;
         
         % 3. Plot results
-        plot_localization_results(q_actual, q_loc_euler, q_loc_rk2, q_loc_exact);
+        plot_localization_results(results_loc(i, j).q_actual, ...
+                                  results_loc(i, j).q_loc_euler, ...
+                                  results_loc(i, j).q_loc_rk2, ...
+                                  results_loc(i, j).q_loc_exact);
         
         name = sprintf('T_s = %.3f | Error = %d', T_s, error_cases(j));
-
+        
         fig_path = findobj('Type', 'Figure', 'Name', 'Localization Paths (X-Y)');
-        set(fig_path, 'Name', ['Path 2D: ', name]);
+        set(fig_path, 'Name', ['Path 2D: ', name]);    
 
         % Pause to analyze the plots before the next iteration
         %disp('Press any key in the Command Window to continue...');
@@ -132,7 +157,88 @@ end
 % precise even with T_s = 0.001;
 % Euler is less precise but with T_s small it converges to the others 
 
+%% 1.6 Extended Kalman Filter
+
+%% initialization 
+
+Ts_values = [0.1, 0.04];
+T_s = Ts_values(1);
+
+% ( robot start with vel = 0 )
+Q_INIT_LOC = Q_INIT;
+% Q_INIT_LOC = Q_INIT + [0.2; 0.2; deg2rad(15)]; 
+
+Z_INIT_EKF = [Q_INIT_LOC; 0; 0; 0; 0]; 
+
+
+%% 1.6 Sim_localization (manual)
+
+simulink_model_name = 'Sim_localization_1_5_6_7'; 
+out = sim(simulink_model_name);
+
+t = out.q.time;
+
+q_actual = out.q.signals.values;
+q_loc_exact = out.q_loc_exact.signals.values;
+z_estimate = out.z_EKF.signals.values;
+
+plot_EKF_results(q_actual, q_loc_exact, z_estimate);
+
+% Kalman estimate is identical to the exact localization method
+% both are using the wheels velocities as only information
+
+
+%% 1.6 Sim_EKF (Automatic)
+Ts_values = [0.1, 0.04]; % Test with two sampling times
+error_cases = [0, 1]; % 0 = without error, 1 = with initial error
+
+simulink_model_name = 'Sim_localization_1_5_6_7'; 
+
+for i = 1:length(Ts_values)
+    T_s = Ts_values(i);
+    
+    for j = 1:length(error_cases)
+        if error_cases(j) == 0
+            fprintf('Execution: T_s = %.3f | WITHOUT initial error\n', T_s);
+            Q_INIT_LOC = Q_INIT; 
+            Z_INIT_EKF = [Q_INIT; 0; 0; 0; 0];
+        else
+            fprintf('Execution: T_s = %.3f | WITH initial error\n', T_s);
+            % Arbitrary initial error setup (e.g., 20 cm offset, 15 deg)
+            Q_INIT_LOC = Q_INIT + [0.2; 0.2; deg2rad(15)]; 
+            Z_INIT_EKF = [Q_INIT_LOC; 0; 0; 0; 0];
+        end
+        
+        % 1. Run the simulation automatically
+        out = sim(simulink_model_name);
+        
+        % 2. Data extraction and saving into structured array
+        results_ekf(i, j).Ts = T_s;
+        results_ekf(i, j).initial_error = error_cases(j);
+        
+        % Actual path and pure odometry (Exact) as baseline
+        results_ekf(i, j).q_actual = out.q.signals.values;
+        results_ekf(i, j).q_loc_exact = out.q_loc_exact.signals.values;
+        results_ekf(i, j).z_estimate = out.z_EKF.signals.values;
+        
+        % 3. Plot results
+        plot_EKF_results(results_ekf(i, j).q_actual, ...
+                         results_ekf(i, j).q_loc_exact, ...
+                         results_ekf(i, j).z_estimate);
+        
+        % Dynamic window renaming
+        name = sprintf('T_s = %.3f | Error = %d', T_s, error_cases(j));
+        
+        fig_path = findobj('Type', 'Figure', 'Name', 'EKF Paths (X-Y)');
+        set(fig_path, 'Name', ['Path 2D EKF: ', name]);
+        
+        fig_states = findobj('Type', 'Figure', 'Name', 'EKF States vs Time');
+        set(fig_states, 'Name', ['States EKF: ', name]);
+
+       
+        % disp('Press any key in the Command Window to continue...');
+        % pause; 
+    end
+end
+
 %%
-
-
-% set also Z_INIT_EKF (eventually with initial error)
