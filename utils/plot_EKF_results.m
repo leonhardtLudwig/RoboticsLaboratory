@@ -13,12 +13,12 @@ function plot_EKF_results(q_actual, q_exact, z_estimate)
     
     % Plot trajectories with different styles for distinguishability
     plot(q_actual(:,1), q_actual(:,2), 'k-', 'LineWidth', 2, 'DisplayName', 'Actual Path');
-    plot(q_exact(:,1), q_exact(:,2), 'g:', 'LineWidth', 2, 'DisplayName', 'Exact');
+    plot(q_exact(:,1), q_exact(:,2), 'g:', 'LineWidth', 2, 'DisplayName', 'Localization Exact');
     plot(z_estimate(:,1), z_estimate(:,2), 'r--', 'LineWidth', 1.5, 'DisplayName', 'Kalman Estimate');
     
     xlabel('X [m]');
     ylabel('Y [m]');
-    title('Path Comparison: Actual vs Loc_Exact vs Kalman_Estimation');
+    title('Path Comparison: Actual vs Loc_Exact vs Kalman_Estimate');
     legend('Location', 'best');
 
 end
