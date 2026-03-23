@@ -27,6 +27,7 @@ for i = 1:N
 end
 
 q = simulate_unicycle(qi, v, omega, T_s);
-
+%% 
+plot_unicycle_2D(q,50);
 
 

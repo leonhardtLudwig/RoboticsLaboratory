@@ -2,7 +2,7 @@ clear all;
 close all;
 addpath(genpath('./'))
 %%
-T_s = 0.001; 
+T_s = 0.04; 
 r = 0.03;
 d = 0.165;
 r_actual = 0.031;
@@ -19,3 +19,5 @@ omega_trj = 2*pi;
 [q, u] = cartisian_flatness(x_s, y_s, x_s_dot, y_s_dot, x_s_ddot, y_s_ddot);
 
 Q_INIT = q(:,1);
+
+plot_unicycle_2D(q,50);
