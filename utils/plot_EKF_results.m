@@ -18,7 +18,7 @@ function plot_EKF_results(q_actual, q_exact, z_estimate)
     
     xlabel('X [m]');
     ylabel('Y [m]');
-    title('Path Comparison: Actual vs Loc_Exact vs Kalman_Estimate');
+    title('Path Comparison: Actual vs Loc Exact vs Kalman Estimate');
     legend('Location', 'best');
 
 end

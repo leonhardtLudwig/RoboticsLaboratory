@@ -1,0 +1,34 @@
+clear all;
+close all;
+addpath(genpath('utils'));
+
+%% OPTIONAL 1
+
+% test localization strategies based on Kalman filter with GPS data
+
+% displacement params r and d 
+% p_loss = 0.99 / 0.9
+% Ts = 0.1, 0.04, 0.99
+
+%% Load Data
+
+load("NA2_Full_Results.mat")
+
+%% Plot p_loss = 0.90 
+
+
+for i = 1:length(Ts_values)
+    T_s = Ts_values(i);
+    
+    % Inizializza le matrici per il T_s corrente
+    [P_INIT_EKF, D, R_2, R_3, R_4] = initialize_kalman_cov(T_s);
+        
+    out = sim(simulink_model_name);
+    
+    q_actual = out.q.signals.values;
+    q_loc_exact = out.q_loc_exact.signals.values;
+    z_estimate = out.z_EKF.signals.values;
+    
+    plot_EKF_results(q_actual, q_loc_exact, z_estimate);
+    title(['EKF GPS: T_s = ', num2str(T_s), ' | p_{loss} = ', num2str(p_loss)]);
+

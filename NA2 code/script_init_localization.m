@@ -1,6 +1,8 @@
 clear all;
 close all;
 addpath(genpath('utils'));
+%%
+addpath(fullfile(pwd,'..','utils'));
 
 %% Set simulation parameters
 T_s = 0.04; 
@@ -52,7 +54,7 @@ T_SIM = 10;
 
 %% 1.4 Sim_tracking
 
-T_s = 0.1;  % 0.001 ; 0.04 ; 0.1
+T_s = 0.04;  % 0.001 ; 0.04 ; 0.1
 
 %%
 simulink_model_name = 'Sim_tracking_1_3_4'; 
@@ -68,7 +70,7 @@ plot_unicycle_2D(q_actual, 50);
 %% EKF parameters
 
 ENCODER_QUANTIZATION = 2 * pi / 4096;
-
+    
 % EKF initil covariance
 P_INIT_EKF = diag([0.001, 0.001, 0.0175/6, 0.0175/6, 0.0175/6, 0.0175/6*T_s, 0.0175/6*T_s].^2);
 % EKF process covariance
@@ -84,7 +86,7 @@ Z_INIT_EKF = [Q_INIT; 0; 0; 0; 0];
 %% 1.5 Sim_localization (manual)
 
 Ts_values = [0.1, 0.04, 0.001];
-T_s = Ts_values(2);
+T_s = Ts_values(1);
 
 Q_INIT_LOC = Q_INIT;
 % Q_INIT_LOC = Q_INIT + [0.2; 0.2; deg2rad(15)]; 
@@ -114,7 +116,7 @@ error_cases = [0, 1]; % 0 = without error, 1 = with initial error
 simulink_model_name = 'Sim_localization_1_5_6_7'; 
 
 % Preallocate results matrix
-results_loc(length(Ts_values),length(error_cases)) = [];
+%results_loc(length(Ts_values),length(error_cases)) = [];
 
 for i = 1:length(Ts_values)
     T_s = Ts_values(i);
@@ -198,6 +200,7 @@ simulink_model_name = 'Sim_localization_1_5_6_7';
 
 for i = 1:length(Ts_values)
     T_s = Ts_values(i);
+    [P_INIT_EKF, D, R_2, R_3, R_4] = initialize_kalman_cov(T_s);
     
     for j = 1:length(error_cases)
         if error_cases(j) == 0
@@ -233,10 +236,7 @@ for i = 1:length(Ts_values)
         
         fig_path = findobj('Type', 'Figure', 'Name', 'EKF Paths (X-Y)');
         set(fig_path, 'Name', ['Path 2D EKF: ', name]);
-        
-        fig_states = findobj('Type', 'Figure', 'Name', 'EKF States vs Time');
-        set(fig_states, 'Name', ['States EKF: ', name]);
-
+      
        
         % disp('Press any key in the Command Window to continue...');
         % pause; 
@@ -275,34 +275,24 @@ d = 0.165;
 r_actual = 0.031;
 d_actual = 0.164;
 
-noise_var = 0.01^2;
+GPS_noise_var = 0.01^2;
 
 %% Initialization 
 
 T_s = 0.04;
+current_initial_error = 0;
 
 Q_INIT_LOC = Q_INIT;
-% Q_INIT_LOC = Q_INIT + [0.2; 0.2; deg2rad(15)]; 
+%Q_INIT_LOC = Q_INIT + [0.2; 0.2; deg2rad(15)]; 
 
 Z_INIT_EKF = [Q_INIT_LOC; 0; 0; 0; 0]; 
 
-%% EKF parameters (proportional to T_s)
-
-ENCODER_QUANTIZATION = 2 * pi / 4096;
-
-% EKF initil covariance
-P_INIT_EKF = diag([0.001, 0.001, 0.0175/6, 0.0175/6, 0.0175/6, 0.0175/6*T_s, 0.0175/6*T_s].^2);
-% EKF process covariance
-D = diag([0.001, 0.001, 0.0175/6, 0.0175/6, 0.0175/6, 0.0175/6*T_s, 0.0175/6*T_s].^2);
-% EKF measurement noise (delta wheels angles)
-R_2 = diag([ENCODER_QUANTIZATION/6,ENCODER_QUANTIZATION/6].^2);
-% EKF measurement noise (GPS + delta wheels angles)
-R_4 = diag(([0.001, 0.001, ENCODER_QUANTIZATION/6,ENCODER_QUANTIZATION/6]).^2);
-
+[P_INIT_EKF, D, R_2, R_3, R_4] = initialize_kalman_cov(T_s);
 
 %% Sim_localization_gps (manual)
 
-p_loss = 0.99;   % 0.01, 0.09, 0.99
+p_loss_values = [0.01, 0.9, 0.99];  
+p_loss = p_loss_values(3);
 
 simulink_model_name = 'Sim_localization_gps_1_8'; 
 out = sim(simulink_model_name);
@@ -318,4 +308,127 @@ plot_EKF_results(q_actual, q_loc_exact, z_estimate);
 % but it has noise. Turning up the p_loss the estimate is less precise and
 % more similar to le simle localization one
 
-%%
+%% OPTIONAL 1: Sim_localization_gps (automatic)
+
+Ts_values = [0.1, 0.04, 0.001];
+error_cases = [0,1];
+
+p_loss_values = [0.01, 0.9, 0.99];  
+p_loss = p_loss_values(2); 
+
+simulink_model_name = 'Sim_localization_gps_1_8'; 
+
+% (no initial error)
+current_initial_error = error_cases(1); 
+
+opt1 = struct('T_s', cell(1, length(Ts_values)), ...
+              'p_loss', [], ...
+              'q_actual', [], ...
+              'q_loc_exact', [], ...
+              'z_estimate', [], ...
+              'initial_error', []);
+
+for i = 1:length(Ts_values)
+    T_s = Ts_values(i);
+    
+    % Inizializza le matrici per il T_s corrente
+    [P_INIT_EKF, D, R_2, R_3, R_4] = initialize_kalman_cov(T_s);
+        
+    out = sim(simulink_model_name);
+    
+    q_actual = out.q.signals.values;
+    q_loc_exact = out.q_loc_exact.signals.values;
+    z_estimate = out.z_EKF.signals.values;
+    
+    plot_EKF_results(q_actual, q_loc_exact, z_estimate);
+    title(['EKF GPS: T_s = ', num2str(T_s), ' | p_{loss} = ', num2str(p_loss)]);
+       
+    % save data
+    opt1(i).T_s = T_s;
+    opt1(i).p_loss = p_loss;
+    opt1(i).q_actual = q_actual;
+    opt1(i).q_loc_exact = q_loc_exact;
+    opt1(i).z_estimate = z_estimate;
+    opt1(i).initial_error = current_initial_error;
+end
+
+%% Save for EX_opt_1 (change manually p_loss)
+opt1_data_p90 = opt1; 
+
+
+%% OPTIONAL 2: Extended Kalman Filter (NL)
+
+% in the simulink: 
+% H NL from derivation wrt state
+% R = R3 (new def)
+% noise measurements of the distance robot-origin 
+    
+dist_noise = 0.01^2;
+
+Ts_values = [0.1, 0.04, 0.001];
+T_s = Ts_values(2);
+
+[P_INIT_EKF, D, R_2, R_3, R_4] = initialize_kalman_cov(T_s);
+
+%% Sim_localization_opt2 (manual)
+
+simulink_model_name = 'Sim_localization_NL_opt2'; 
+out = sim(simulink_model_name);
+
+q_actual = out.q.signals.values;
+q_loc_exact = out.q_loc_exact.signals.values;
+z_estimate = out.z_EKF.signals.values;
+
+plot_EKF_results(q_actual, q_loc_exact, z_estimate);
+
+% ANALYSIS: the estimate is more close to the real traj. even if still
+% noisy. It is not precise close to the origin (solution: trust less the
+% measure -> consider just odometry inside a certain region)
+
+
+%% Sim_localization_opt2 (automatic)
+    
+dist_noise = 0.01^2;
+Ts_values = [0.1, 0.04, 0.001];
+simulink_model_name = 'Sim_localization_NL_opt2'; 
+
+% (no initial error)
+current_initial_error = error_cases(1); 
+
+opt2 = struct('T_s', cell(1, length(Ts_values)), ...
+              'q_actual', [], ...
+              'q_loc_exact', [], ...
+              'z_estimate', [], ...
+              'initial_error', []);
+
+for i = 1:length(Ts_values)
+    T_s = Ts_values(i);
+
+    [P_INIT_EKF, D, R_2, R_3, R_4] = initialize_kalman_cov(T_s);
+    
+    out = sim(simulink_model_name);
+    
+    q_actual = out.q.signals.values;
+    q_loc_exact = out.q_loc_exact.signals.values;
+    z_estimate = out.z_EKF.signals.values;
+    
+    % figure(i);
+    plot_EKF_results(q_actual, q_loc_exact, z_estimate);
+    % title(['EKF Results with T_s = ', num2str(T_s)]);
+        
+    % save data
+    opt2(i).T_s = T_s;
+    opt2(i).q_actual = q_actual;
+    opt2(i).q_loc_exact = q_loc_exact;
+    opt2(i).z_estimate = z_estimate;
+    opt2(i).initial_error = current_initial_error; 
+end
+
+%% Save for EX_opt_2
+
+opt2_data = opt2;
+
+%% Save workspace
+saveFilename = 'NA2_Full_Results.mat';
+save(saveFilename);
+fprintf('Workspace saved to %s\n', saveFilename);
