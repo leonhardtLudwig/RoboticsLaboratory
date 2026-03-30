@@ -1,7 +1,8 @@
 %% Setup iniziale
 clear all;
 close all;
-addpath(genpath('utils'));
+%addpath(genpath('utils'));
+addpath(fullfile(pwd,'..','utils'));
 
 %% Set simulation parameters
 r = 0.03;
