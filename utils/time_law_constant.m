@@ -1,13 +1,12 @@
-function [s, s_dot] = time_law_constant(t)
+function [s, s_dot] = time_law_constant(t, T_tot)
    
-    T = 10;
-
-    if t == 0
-        s = 0;
-    else
-        s = 1;
-    end
-
-    s_dot = (1 / T);
+    s = t / T_tot;
+    
+    s(s > 1) = 1; 
+    
+    s_dot = ones(size(t)) / T_tot;
+    
+    % final velocity null
+    s_dot(t > T_tot) = 0;
 
 end

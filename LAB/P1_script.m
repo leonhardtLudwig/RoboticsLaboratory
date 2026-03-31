@@ -1,8 +1,6 @@
 clear all;
 close all;
 clc
-addpath(genpath('utils'));
-%%
 addpath(fullfile(pwd,'..','utils'));
 %% Set simulation parameters
 T_s = 0.04; 
@@ -34,9 +32,6 @@ Q_INIT = q(:,1);
 Ta = 1;
 Tc = 30;
 
-
-
-
 %% EKF parameters
 
 ENCODER_QUANTIZATION = 2 * pi / 4096;
@@ -53,19 +48,26 @@ R_4 = diag(([0.001, 0.001, ENCODER_QUANTIZATION/6,ENCODER_QUANTIZATION/6]).^2);
 Z_INIT_EKF = [Q_INIT; 0; 0; 0; 0]; 
 
 
+%% RUN EXPERIMENT PART 1
 
-
-
-%% COLLECT DATA
+%% Set Values
 
 Ta = 1;
-Tc_values = [0.1, 0.04, 0.001];
+Tc_values = [30,18,45];
 
-% simulink_model_name = 'Part1'; 
+% Test Number i = 1,2,3
+i = 1;
+Tc = Tc_values(i);
 
-% (no initial error)
-current_initial_error = error_cases(1); 
+%% Run Simulation (or manually run simulink)
 
+simulink_model_name = 'Part1'; 
+out = sim(simulink_model_name);
+
+disp('Simulation completed');
+
+
+%% 
 results = struct('T_s', cell(1, length(Ts_values)), ...
               'Ta', [], ...
               'Tc', [], ...
@@ -85,16 +87,52 @@ plot_EKF_results(q_actual, q_loc_exact, z_estimate);
 title(['EKF GPS: T_s = ', num2str(T_s), ' | p_{loss} = ', num2str(p_loss)]);
        
 % save data
-results(i).T_s = T_s;
-results(i).Ta = Ta;
-results(i).q_desired = q_desired;
-results(i).q_loc_exact = q_loc_exact;
-results(i).q_loc_kalman = q_loc_kalman;
+results_part1(i).T_s = T_s;
+results_part1(i).Ta = Ta;
+results_part1(i).q_desired = q_desired;
+results_part1(i).q_loc_exact = q_loc_exact;
+results_part1(i).q_loc_kalman = q_loc_kalman;
+ 
+
+%% Plot
+plot_EKF_results(q_desired, q_loc_exact, q_loc_kalman);
+
+%%
 
 
-%% Save for EX_opt_1 (change manually p_loss)
-opt1_data_p90 = opt1; 
 
+%% PARTE 3
 
+clear all;
+close all;
+%addpath(genpath('utils'));
+addpath(fullfile(pwd,'..','utils'));
+  
+%% Set simulation parameters
+
+T_SIM = 20;  % tentativo
+
+T_s = 0.04; 
+r = 0.03;
+d = 0.165;
+omega_max = 10;
+
+%% Time Law params
+
+%trapezoidal
+Ta = 2;
+Tc = 3;
+
+%% Trajectory params
+qi = [-0.5; -0.5; pi/2];
+qf = [0.5; 0.5; pi/2];
+
+ki = 5;
+kf = 5;
+
+%%
+plot_unicycle_2D(q,50);
+
+%%
 
 
