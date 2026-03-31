@@ -30,5 +30,12 @@ PHI = [PHI_X, zeros(size(PHI_X));
 % Get the regression matrix with translations
 % TO DO COMPUTE PHI_trasl_cal [3*N,2] 
 % (regression matrix of the features r/d x_off, r/d y_off)
-% PHI_trasl_cal= ??
+theta = theta_off; 
+
+PHI_X_off = [-delta_omega .* sin(theta),  -delta_omega .* cos(theta)];
+PHI_Y_off = [ delta_omega .* cos(theta),  -delta_omega .* sin(theta)];
+PHI_THETA_off = zeros(N,2);
+PHI_trasl_cal = [PHI_X_off;
+                 PHI_Y_off;
+                 PHI_THETA_off];
 PHI_cal = [PHI, PHI_trasl_cal];
