@@ -26,11 +26,13 @@ s = linspace(0,1, N_samples);
 [q, u] = cartisian_flatness(x_s, y_s, x_s_dot, y_s_dot, x_s_ddot, y_s_ddot);
 
 Q_INIT = q(:,1);
+Q_INIT_LOC = Q_INIT;
 
 %% Time law
 
 Ta = 1;
 Tc = 30;
+
 
 %% EKF parameters
 
@@ -46,6 +48,7 @@ R_2 = diag([ENCODER_QUANTIZATION/6,ENCODER_QUANTIZATION/6].^2);
 R_4 = diag(([0.001, 0.001, ENCODER_QUANTIZATION/6,ENCODER_QUANTIZATION/6]).^2);
 
 Z_INIT_EKF = [Q_INIT; 0; 0; 0; 0]; 
+PHI_INIT = [0;0];
 
 
 %% RUN EXPERIMENT PART 1
@@ -56,35 +59,62 @@ Ta = 1;
 Tc_values = [30,18,45];
 
 % Test Number i = 1,2,3
-i = 1;
+i = 3;
 Tc = Tc_values(i);
+T_SIM = Ta*2+Tc;
+
+
+%% Set matrix H for EKF
+
+%Encoder
+H1 = [0, 0, 0, 1, 0, 0, 0;
+      0, 0, 0, 0, 1, 0, 0];
+
+%Angular velocities
+H2 = [0, 0, 0, 0, 0, 1, 0;
+      0, 0, 0, 0, 0, 0, 1]; 
+%Configuration
+H3 = [1, 0, 0, 0, 0, 0, 0;
+      0, 1, 0, 0, 0, 0, 0;
+      0, 0, 1, 0, 0, 0, 0]; 
+
+H = H1;
+%H = [H2;H1];
 
 %% Run Simulation (or manually run simulink)
 
 simulink_model_name = 'Part1'; 
-out = sim(simulink_model_name);
+out = sim(simulink_model_name,T_SIM);
 
 disp('Simulation completed');
 
 
 %% 
-results = struct('T_s', cell(1, length(Ts_values)), ...
+results = struct('T_s', [], ...
               'Ta', [], ...
               'Tc', [], ...
               'q_desired', [], ...
               'q_loc_exact', [], ...
-              'q_loc_kalman', [] );
+              'q_loc_kalman', [], ...
+              'acce', [],...
+              'gyro',[],...
+              'odometry',[],...
+              'out_backup',[]);
 
 [P_INIT_EKF, D, R_2, R_3, R_4] = initialize_kalman_cov(T_s);
         
 % out = sim(simulink_model_name);
-    
+out_backup = out;
 q_desired = out.q_des.signals.values;
 q_loc_exact = out.q_loc_exact.signals.values;
 q_loc_kalman = out.z_EKF.signals.values;
-    
-plot_EKF_results(q_actual, q_loc_exact, z_estimate);
-title(['EKF GPS: T_s = ', num2str(T_s), ' | p_{loss} = ', num2str(p_loss)]);
+odometry = out.odometry.signals.values;
+acce = out.acce.signals.values;
+gyro = out.gyro.signals.values;
+
+
+
+plot_EKF_results(q_desired, q_loc_exact, q_loc_kalman);
        
 % save data
 results_part1(i).T_s = T_s;
@@ -92,47 +122,11 @@ results_part1(i).Ta = Ta;
 results_part1(i).q_desired = q_desired;
 results_part1(i).q_loc_exact = q_loc_exact;
 results_part1(i).q_loc_kalman = q_loc_kalman;
+results_part1(i).odometry = odometry;
+results_part1(i).acce = acce;
+results_part1(i).gyro = gyro;
+results_part1(i).out_backup = out_backup;
  
 
 %% Plot
 plot_EKF_results(q_desired, q_loc_exact, q_loc_kalman);
-
-%%
-
-
-
-%% PARTE 3
-
-clear all;
-close all;
-%addpath(genpath('utils'));
-addpath(fullfile(pwd,'..','utils'));
-  
-%% Set simulation parameters
-
-T_SIM = 20;  % tentativo
-
-T_s = 0.04; 
-r = 0.03;
-d = 0.165;
-omega_max = 10;
-
-%% Time Law params
-
-%trapezoidal
-Ta = 2;
-Tc = 3;
-
-%% Trajectory params
-qi = [-0.5; -0.5; pi/2];
-qf = [0.5; 0.5; pi/2];
-
-ki = 5;
-kf = 5;
-
-%%
-plot_unicycle_2D(q,50);
-
-%%
-
-
