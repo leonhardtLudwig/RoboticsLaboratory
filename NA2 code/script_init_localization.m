@@ -329,6 +329,7 @@ opt1 = struct('T_s', cell(1, length(Ts_values)), ...
               'q_actual', [], ...
               'q_loc_exact', [], ...
               'z_estimate', [], ...
+              'P_filt_current', [], ...
               'initial_error', []);
 
 for i = 1:length(Ts_values)
@@ -342,6 +343,7 @@ for i = 1:length(Ts_values)
     q_actual = out.q.signals.values;
     q_loc_exact = out.q_loc_exact.signals.values;
     z_estimate = out.z_EKF.signals.values;
+    P_filt_current = out.P_filt_EKF.signals.values;
     
     plot_EKF_results(q_actual, q_loc_exact, z_estimate);
     title(['EKF GPS: T_s = ', num2str(T_s), ' | p_{loss} = ', num2str(p_loss)]);
@@ -352,7 +354,9 @@ for i = 1:length(Ts_values)
     opt1(i).q_actual = q_actual;
     opt1(i).q_loc_exact = q_loc_exact;
     opt1(i).z_estimate = z_estimate;
+    opt1(i).P_filt_current = P_filt_current;
     opt1(i).initial_error = current_initial_error;
+    
 end
 
 %% Save for EX_opt_1 (change manually p_loss)
@@ -402,6 +406,7 @@ opt2 = struct('T_s', cell(1, length(Ts_values)), ...
               'q_actual', [], ...
               'q_loc_exact', [], ...
               'z_estimate', [], ...
+              'P_filt_current', [], ...
               'initial_error', []);
 
 for i = 1:length(Ts_values)
@@ -414,6 +419,7 @@ for i = 1:length(Ts_values)
     q_actual = out.q.signals.values;
     q_loc_exact = out.q_loc_exact.signals.values;
     z_estimate = out.z_EKF.signals.values;
+    P_filt_current = out.P_filt_EKF.signals.values;
     
     % figure(i);
     plot_EKF_results(q_actual, q_loc_exact, z_estimate);
@@ -424,6 +430,7 @@ for i = 1:length(Ts_values)
     opt2(i).q_actual = q_actual;
     opt2(i).q_loc_exact = q_loc_exact;
     opt2(i).z_estimate = z_estimate;
+    opt1(i).P_filt_current = P_filt_current;
     opt2(i).initial_error = current_initial_error; 
 end
 

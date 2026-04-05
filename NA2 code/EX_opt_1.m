@@ -28,16 +28,25 @@ for i = 1:length(Ts_values)
                      opt1_data_p90(i).q_loc_exact, ...
                      opt1_data_p90(i).z_estimate);
     title(['EKF GPS: T_s = ', num2str(T_s), ' | p_{loss} = ', num2str(p_loss)]);
-end
-
-p_loss = 0.99; 
-
-for i = 1:length(Ts_values)
-    T_s = Ts_values(i);
     
-    plot_EKF_results(opt1_data_p99(i).q_actual, ...
-                     opt1_data_p99(i).q_loc_exact, ...
-                     opt1_data_p99(i).z_estimate);
-    title(['EKF GPS: T_s = ', num2str(T_s), ' | p_{loss} = ', num2str(p_loss)]);
 end
 
+% p_loss = 0.99; 
+% 
+% for i = 1:length(Ts_values)
+%     T_s = Ts_values(i);
+% 
+%     plot_EKF_results(opt1_data_p99(i).q_actual, ...
+%                      opt1_data_p99(i).q_loc_exact, ...
+%                      opt1_data_p99(i).z_estimate);
+%     title(['EKF GPS: T_s = ', num2str(T_s), ' | p_{loss} = ', num2str(p_loss)]);
+% end
+
+%%
+
+
+
+plot_unicycle_2D_EKF_filter(opt1_data_p90(1).q_actual, ...
+                            opt1_data_p90(1).z_estimate, ...
+                            opt1_data_p90(1).P_filt_current,...
+                            50);
