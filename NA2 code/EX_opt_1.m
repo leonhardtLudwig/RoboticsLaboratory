@@ -1,7 +1,8 @@
+%% Numerical Activity 2 (NA2): Localization and Identification
+
 clear all;
 close all;
-% addpath(genpath('utils'));
-addpath(fullfile(pwd,'..','utils'));
+addpath(genpath(fullfile(pwd,'..','utils')));
 
 %% OPTIONAL 1
 
@@ -17,7 +18,7 @@ load("NA2_Full_Results.mat")
 
 %% Plot p_loss = 0.90 
 
-Ts_values = [0.1, 0.04, 0.99];
+Ts_values = [0.1, 0.04, 0.001];
 p_loss = 0.90; 
 
 for i = 1:length(Ts_values)

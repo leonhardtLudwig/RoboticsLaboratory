@@ -2,6 +2,7 @@ function plot_unicycle_2D(q, downsampling)
 % q [3,N] x, y, theta trajectory
 % downsampling: useful to reduce the unicycle plot
 
+figure('Name', 'Trajectory in 2D space', 'Color', 'w');
 % plot the trajectory
 plot(q(1,:),q(2,:), 'k--');
 hold on

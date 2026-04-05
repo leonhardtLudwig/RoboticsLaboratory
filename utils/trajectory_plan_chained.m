@@ -1,4 +1,4 @@
-function [v, w] = plan_chained_polynomials(qi, qf, ki, kf, s, s_dot)
+function [v, w] = trajectory_plan_chained(qi, qf, s, s_dot)
     
     % POLYNOMIALS
     
@@ -49,3 +49,4 @@ function [v, w] = plan_chained_polynomials(qi, qf, ki, kf, s, s_dot)
     w = w_tilde .* s_dot;
 
 end
+

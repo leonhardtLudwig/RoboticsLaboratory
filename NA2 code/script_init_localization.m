@@ -1,6 +1,9 @@
+%% Numerical Activity 2 (NA2): Localization and Identification
+%% Part 1: Localization
+ 
 clear all;
 close all;
-addpath(genpath('utils'));
+addpath(genpath(fullfile(pwd,'..','utils')));
 %%
 addpath(fullfile(pwd,'..','utils'));
 
@@ -313,7 +316,7 @@ plot_EKF_results(q_actual, q_loc_exact, z_estimate);
 Ts_values = [0.1, 0.04, 0.001];
 error_cases = [0,1];
 
-p_loss_values = [0.01, 0.9, 0.99];  
+p_loss_values = [0.01, 0.90, 0.99];  
 p_loss = p_loss_values(2); 
 
 simulink_model_name = 'Sim_localization_gps_1_8'; 
@@ -354,7 +357,7 @@ end
 
 %% Save for EX_opt_1 (change manually p_loss)
 opt1_data_p90 = opt1; 
-
+%opt1_data_p99 = opt1; 
 
 %% OPTIONAL 2: Extended Kalman Filter (NL)
 

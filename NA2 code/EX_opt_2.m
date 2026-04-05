@@ -1,6 +1,8 @@
+%% Numerical Activity 2 (NA2): Localization and Identification
+
 clear all;
 close all;
-addpath(genpath('utils'));
+addpath(genpath(fullfile(pwd,'..','utils')));
 
 %% OPTIONAL 2
 

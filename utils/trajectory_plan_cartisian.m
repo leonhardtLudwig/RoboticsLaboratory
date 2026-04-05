@@ -1,4 +1,4 @@
-function [v, w] = plan_cartesian_polynomials(qi, qf, ki, kf, s, s_dot)
+function [v, w] = trajectory_plan_carisian(qi, qf, ki, kf, s, s_dot)
    
     % CUBIC POLYNOMIALS
     if ki * kf < 0
