@@ -4,8 +4,6 @@
 clear all;
 close all;
 addpath(genpath(fullfile(pwd,'..','utils')));
-%%
-addpath(fullfile(pwd,'..','utils'));
 
 %% Set simulation parameters
 T_s = 0.04; 

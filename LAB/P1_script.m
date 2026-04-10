@@ -1,51 +1,53 @@
+%% Experimental Activity 1 (EA1): Planning, Localization, and Identification
+%% PART 1
+
 clear all;
 close all;
-clc
-addpath(fullfile(pwd,'..','utils'));
+addpath(genpath(fullfile(pwd,'..','utils')));
 %% Set simulation parameters
 T_s = 0.04; 
 r = 0.03;
 d = 0.165;
 omega_max = 10;
 
-%% Eight-shape trajectory parameters
+%% Eight-shape trajectory parameters 
 R = 0.4;
 omega_trj = 2*pi;
 
-%% Get an eight-shaped geometric path
+%% Get an eight-shaped geometric path (computed online, here we just need initial position)
+% 
+% % Sample the space variable s uniformly in [0,1]
+% N_samples = 1000; % arbitrary
+% s = linspace(0,1, N_samples); 
+% 
+% [x_s, y_s, x_s_dot, y_s_dot, x_s_ddot, y_s_ddot] = gen_eight_shape_trajectory(R, omega_trj, s);
+% 
+% %% Sample s and get q trajectory with differential flatness
+% 
+% % (u contains geometric input)
+% [q, u] = cartisian_flatness(x_s, y_s, x_s_dot, y_s_dot, x_s_ddot, y_s_ddot);
+% 
+% Q_INIT = q(:,1);
 
-% Sample the space variable s uniformly in [0,1]
-N_samples = 1000; % arbitrary
-s = linspace(0,1, N_samples); 
-
-[x_s, y_s, x_s_dot, y_s_dot, x_s_ddot, y_s_ddot] = gen_eight_shape_trajectory(R, omega_trj, s);
-
-%% Sample s and get q trajectory with differential flatness
-
-% (u contains geometric input)
-[q, u] = cartisian_flatness(x_s, y_s, x_s_dot, y_s_dot, x_s_ddot, y_s_ddot);
-
-Q_INIT = q(:,1);
+Q_INIT = [0; 0; atan2((R*omega_trj), (2*R*omega_trj))];  % atan(2,1)
 Q_INIT_LOC = Q_INIT;
 
 %% Time law
-
 Ta = 1;
 Tc = 30;
 
-
 %% EKF parameters
 
-ENCODER_QUANTIZATION = 2 * pi / 4096;
-    
-% EKF initil covariance
-P_INIT_EKF = diag([0.001, 0.001, 0.0175/6, 0.0175/6, 0.0175/6, 0.0175/6*T_s, 0.0175/6*T_s].^2);
-% EKF process covariance
-D = diag([0.001, 0.001, 0.0175/6, 0.0175/6, 0.0175/6, 0.0175/6*T_s, 0.0175/6*T_s].^2);
-% EKF measurement noise (delta wheels angles)
-R_2 = diag([ENCODER_QUANTIZATION/6,ENCODER_QUANTIZATION/6].^2);
-% EKF measurement noise (GPS + delta wheels angles)
-R_4 = diag(([0.001, 0.001, ENCODER_QUANTIZATION/6,ENCODER_QUANTIZATION/6]).^2);
+% ENCODER_QUANTIZATION = 2 * pi / 4096;
+% 
+% % EKF initil covariance
+% P_INIT_EKF = diag([0.001, 0.001, 0.0175/6, 0.0175/6, 0.0175/6, 0.0175/6*T_s, 0.0175/6*T_s].^2);
+% % EKF process covariance
+% D = diag([0.001, 0.001, 0.0175/6, 0.0175/6, 0.0175/6, 0.0175/6*T_s, 0.0175/6*T_s].^2);
+% % EKF measurement noise (delta wheels angles)
+% R_2 = diag([ENCODER_QUANTIZATION/6,ENCODER_QUANTIZATION/6].^2);
+% % EKF measurement noise (GPS + delta wheels angles)
+% R_4 = diag(([0.001, 0.001, ENCODER_QUANTIZATION/6,ENCODER_QUANTIZATION/6]).^2);
 
 Z_INIT_EKF = [Q_INIT; 0; 0; 0; 0]; 
 PHI_INIT = [0;0];
@@ -63,23 +65,7 @@ i = 3;
 Tc = Tc_values(i);
 T_SIM = Ta*2+Tc;
 
-
-%% Set matrix H for EKF
-
-%Encoder
-H1 = [0, 0, 0, 1, 0, 0, 0;
-      0, 0, 0, 0, 1, 0, 0];
-
-%Angular velocities
-H2 = [0, 0, 0, 0, 0, 1, 0;
-      0, 0, 0, 0, 0, 0, 1]; 
-%Configuration
-H3 = [1, 0, 0, 0, 0, 0, 0;
-      0, 1, 0, 0, 0, 0, 0;
-      0, 0, 1, 0, 0, 0, 0]; 
-
-H = H1;
-%H = [H2;H1];
+[P_INIT_EKF, D, R_2, R_3, R_4] = initialize_kalman_cov(T_s);
 
 %% Run Simulation (or manually run simulink)
 
@@ -89,44 +75,51 @@ out = sim(simulink_model_name,T_SIM);
 disp('Simulation completed');
 
 
-%% 
+%% Save Data
 results = struct('T_s', [], ...
-              'Ta', [], ...
-              'Tc', [], ...
-              'q_desired', [], ...
-              'q_loc_exact', [], ...
-              'q_loc_kalman', [], ...
-              'acce', [],...
-              'gyro',[],...
-              'odometry',[],...
-              'out_backup',[]);
+                 'Ta', [], ...
+                 'Tc', [], ...
+                 'q_desired', [], ...
+                 'q_loc_exact', [], ...
+                 'q_loc_kalman', [], ...
+                 'gyro',[],...
+                 'acce', [],...
+                 'q_motion_capture',[],...
+                 'wheels_speed_desired',[],...
+                 'wheels_speed_measured',[],...
+                 'out_backup',[]);
+       
+out_backup = out;   % if necessary: P_filt_EKF, q_loc_Euler, q_loc_rk2
 
-[P_INIT_EKF, D, R_2, R_3, R_4] = initialize_kalman_cov(T_s);
-        
-% out = sim(simulink_model_name);
-out_backup = out;
 q_desired = out.q_des.signals.values;
 q_loc_exact = out.q_loc_exact.signals.values;
 q_loc_kalman = out.z_EKF.signals.values;
-odometry = out.odometry.signals.values;
+
 acce = out.acce.signals.values;
 gyro = out.gyro.signals.values;
+q_motion_capture = out.q_motion_capture.signals.values; 
 
+wheels_speed_desired = out.wheels_speed_des.signals.values;
+wheels_speed_measured = out.wheels_speed_meas.signals.values;
 
-
-plot_EKF_results(q_desired, q_loc_exact, q_loc_kalman);
-       
-% save data
+      
+% Data Assignment to struct array
 results_part1(i).T_s = T_s;
 results_part1(i).Ta = Ta;
+results_part1(i).Tc = Tc;
 results_part1(i).q_desired = q_desired;
 results_part1(i).q_loc_exact = q_loc_exact;
 results_part1(i).q_loc_kalman = q_loc_kalman;
-results_part1(i).odometry = odometry;
-results_part1(i).acce = acce;
 results_part1(i).gyro = gyro;
+results_part1(i).acce = acce;
+results_part1(i).q_motion_capture = q_motion_capture;
+results_part1(i).wheels_speed_desired = wheels_speed_desired;
+results_part1(i).wheels_speed_measured = wheels_speed_measured;
 results_part1(i).out_backup = out_backup;
- 
-
+      
 %% Plot
-plot_EKF_results(q_desired, q_loc_exact, q_loc_kalman);
+q_motion_cap = results_part1(1).q_motion_capture;
+
+plot_unicycle_2D(q_motion_cap',50);
+
+%%
