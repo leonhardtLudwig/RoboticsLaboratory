@@ -122,7 +122,7 @@ ki = 4.5;    % 4.5 limit value to not hit the obstacle
 kf = 10;
 
 %%
-[q, u] = run_trajectory_cartisian(qi, qf, ki, kf, T_SIM,T_s);
+[q, u] = run_trajectory_cartisian(qi, qf, ki, kf, T_SIM, T_s);
 
 [q_dot, omega_wheels] = DDR_Unicycle(q, u, d, r);
 

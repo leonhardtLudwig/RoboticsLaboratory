@@ -31,13 +31,22 @@ acce = results.acce;
 ws_des = results.wheels_speed_desired;
 ws_meas = results.wheels_speed_measured;
 
+% motion capture has y and z axis opposite
+q_motion_capture(:, 2) = -results.q_motion_capture(:, 2); 
+q_motion_capture(:, 3) = -results.q_motion_capture(:, 3);
+
+
+
 % 2.1, analogo a quanto fatto in NA2
 q4id = q_motion_capture;  
 q4id(:,3) = unwrap(q_motion_capture(:,3));  % corregge i salti di ±2π
 
-%omega_wheels = ws_meas;  
-omega_wheels = ws_meas(:, [2, 1]); %scambia left e right
+omega_wheels = ws_meas;  
+% omega_wheels = ws_meas(:, [2, 1]); %scambia left e right
 N_samples = size(q4id, 1) - 1;
+
+% IMU (gyro) has z looking down
+omega_gyro = -results.gyro(1:N_samples, 3);
 
 [PHI, Y] = get_phi_reg(q4id, omega_wheels, T_s);
 delta_X = Y(1:N_samples);
@@ -165,24 +174,26 @@ wheels_speed_des = wheels_speed_des(1:N_samples, :);
 wheels_speed_des_ts = timeseries(wheels_speed_des, t_array);
 wheels_speed_des_ts.DataInfo.Interpolation = tsdata.interpolation('zoh');
 
-omega_gyro = results.gyro(1:N_samples, 3); 
+omega_gyro = - results.gyro(1:N_samples, 3); 
 omega_gyro_ts = timeseries(omega_gyro, t_array);
 omega_gyro_ts.DataInfo.Interpolation = tsdata.interpolation('zoh');
 
 % from calibration
-q_motion_capture = q_mocap_cal(1:N_samples, :);
-q_motion_capture_ts = timeseries(q_mocap_cal_sync, t_array);
+q_motion_capture_cal = q_motion_capture_cal(1:N_samples, :);
+q_motion_capture_ts = timeseries(q_motion_capture_cal, t_array);
 q_motion_capture_ts.DataInfo.Interpolation = tsdata.interpolation('zoh');
 
 %% Initial State for localization
 
-Q_INIT = results.q_motion_capture(1,:)';
+Q_INIT = q_motion_capture_cal(1,:)';
 
 Q_INIT_LOC = Q_INIT;
 
 [P_INIT_EKF, D, R_2, R_3, R_4] = initialize_kalman_cov(T_s);
 Z_INIT_EKF = [Q_INIT; 0; 0; 0; 0]; 
 PHI_INIT = [0;0];
+p_loss = 0;
+test_case = 1;
 
 %% Run SIMULATION
 
@@ -191,13 +202,13 @@ simulink_model_name = 'Part2';
 out = sim(simulink_model_name);
 
 
-%% Extract Data
+%% Collect Data
 
 q_loc_euler = out.q_loc_euler.signals.values;
 q_loc_rk2 = out.q_loc_rk2.signals.values;
 q_loc_exact = out.q_loc_exact.signals.values;
 
-plot_localization_results(results.q_motion_capture', q_loc_euler, q_loc_rk2, q_loc_exact);
+plot_localization_results(q_motion_capture_cal', q_loc_euler, q_loc_rk2, q_loc_exact);
 
 
 %% Observation matrix H for EKF
@@ -237,21 +248,54 @@ R_3 = diag(([var_motion_capture, var_motion_capture, var_motion_capture, ...
 
 
 %% TEST ONLY ENCODER
-
-H = H_enc;
-R = R1;
-
-%% TEST ENCODER and IMU
-
-% with IMU (gyro + acc) I just take the w_gyro around z
-
-H = [H_enc ; H_gyro];
-
-R = R2;
-
-%% TEST ENCODER, IMU and MOTION CAPTURE
-
+% test_case = 1;
+% 
+% H = H_enc;
+% R = R_1;
+% 
+% %% TEST ENCODER and IMU
+% test_case = 2;
+% 
+% % with IMU (gyro + acc) I just take the w_gyro around z
+% 
+% H = [H_enc ; H_gyro];
+% R = R_2;
+% 
+% %% TEST ENCODER, IMU and MOTION CAPTURE
+% test_case = 3;
+% 
 H = [H_motion_cap ; H_enc; H_gyro];
+% R = R_3;
+% 
+% p_loss_values = [1.0, 0.99, 0];
+% p_loss = p_loss_values(2);
 
+%% VERSION WITH H FULL
+
+% set simulation params
+test_case = 3;
 p_loss_values = [1.0, 0.99, 0];
-p_loss = p_loss_values(2);
+p_loss = p_loss_values(3);     % useful just for case 3
+
+
+%% Run simulation
+simulink_model_name = 'Part2'; 
+out = sim(simulink_model_name);
+
+%% Collect Data
+
+q_loc_euler = out.q_loc_euler.signals.values;
+q_loc_rk2 = out.q_loc_rk2.signals.values;
+q_loc_exact = out.q_loc_exact.signals.values;
+
+% plot_localization_results(q_motion_capture_cal', q_loc_euler, q_loc_rk2, q_loc_exact);
+
+z_estimate = out.z_EKF.signals.values;
+P_filt_EKF = out.P_filt_EKF.signals.values;
+
+q_loc_EKF = z_estimate(1:3,:,:);
+
+
+%%
+plot_EKF_results(q_motion_capture', q_loc_exact, q_loc_EKF);
+
