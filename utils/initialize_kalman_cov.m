@@ -5,6 +5,7 @@ function [P_INIT_EKF, D, R_2, R_3, R_4] = initialize_kalman_cov(T_s)
     P_INIT_EKF = diag([0.001, 0.001, 0.0175/6, 0.0175/6, 0.0175/6, 0.0175/6*T_s, 0.0175/6*T_s].^2);
     % EKF process covariance
     D = diag([0.001, 0.001, 0.0175/6, 0.0175/6, 0.0175/6, 0.0175/6*T_s, 0.0175/6*T_s].^2);
+    
     % EKF measurement noise (delta wheels angles)
     R_2 = diag([ENCODER_QUANTIZATION/6,ENCODER_QUANTIZATION/6].^2);
     % EKF measurement noise (GPS + delta wheels angles)
