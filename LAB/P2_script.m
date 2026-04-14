@@ -36,6 +36,7 @@ q_motion_capture(:, 2) = -results.q_motion_capture(:, 2);
 q_motion_capture(:, 3) = -results.q_motion_capture(:, 3);
 
 
+%%
 
 % 2.1, analogo a quanto fatto in NA2
 q4id = q_motion_capture;  
