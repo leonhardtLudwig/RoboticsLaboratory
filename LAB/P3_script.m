@@ -60,10 +60,10 @@ figure;
 plot_unicycle_2D(q,50);
 %% time law trapezoidale
 
-ki = 1;
-kf = 6;
+ki = 4;
+kf = 4;
 Ta = 1;
-Tc = 18;
+Tc = 10;
 
 [s, s_dot] = time_law_trapezoidal(t, Ta,Tc);
 % Traj generation
