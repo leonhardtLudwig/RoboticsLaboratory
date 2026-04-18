@@ -13,7 +13,7 @@ omega_max = 10;
 
 %% Load Data from Part1 and extract configuration 1
 
-load('EA1_Part1_Data.mat');
+load('./Data/EA1_Part1_Data.mat');
 
 results = results_part1(1);
 disp(['Results with Ta, Tc: ', num2str(results.Ta), ', ', num2str(results.Tc)]);
@@ -199,8 +199,8 @@ test_case = 1;
 %% Run SIMULATION
 
 % open('')
-simulink_model_name = 'Part2'; 
-out = sim(simulink_model_name);
+%simulink_model_name = 'Part2'; 
+%out = sim(simulink_model_name);
 
 
 %% Collect Data
