@@ -45,6 +45,25 @@ N_samples = size(q4id, 1) - 1;
 % w_gyro va: estratta comp z, ribaltata, rad/s, bias 0.1 (calibrazione)
 w_gyro = -gyro(:,3) * 0.1 * (pi / 180); 
 
+%% PLOT DI VERIFICA DATI
+
+plot_unicycle_2D(q_motion_capture(1:200,:)',50);
+plot_wheels_speed(omega_wheels(1:200,:)', T_s);
+
+N = size(w_gyro, 1);
+t = (0:N-1)' * T_s;
+figure();
+plot(t(1:200),w_gyro(1:200));
+%%
+% derive w_z with omega wheels:
+w_odom = (r / d) * (omega_wheels(:, 2) - omega_wheels(:, 1));
+figure();
+%plot(t_array(1:200),w_odom(1:200));
+
+plot(t(1:200),w_gyro(1:200)-w_odom(1:200))
+
+% tutti i dati sono coerenti (traiettoria opposta a des)
+
 %% START IDENTIFICATION / CALIBRATION
 
 [PHI, Y] = get_phi_reg(q4id, omega_wheels, T_s);
@@ -159,6 +178,14 @@ r_id = r_cal_hat;
 d_id = d_cal_hat;
 
 plot_wheels_speed(omega_wheels',T_s)
+plot_wheels_speed(ws_des',T_s)
+
+% RIBALTARE ANCHE WS_DES
+
+omega_wheels_des = ws_des(:, [2, 1]); %scambia left e right
+
+plot_wheels_speed(omega_wheels_des',T_s)
+
 %% Prepare Data for the Simulink
 N_samples = size(ws_meas, 1);
 t_array = (0:N_samples-1)' * T_s;
@@ -167,29 +194,17 @@ t_array = (0:N_samples-1)' * T_s;
 wheels_speed_meas_ts = timeseries(omega_wheels, t_array);
 wheels_speed_meas_ts.DataInfo.Interpolation = tsdata.interpolation('zoh');
 
-ws_des = ws_des(1:N_samples, :); 
+ws_des = omega_wheels_des(1:N_samples, :); 
 wheels_speed_des_ts = timeseries(ws_des, t_array);
 wheels_speed_des_ts.DataInfo.Interpolation = tsdata.interpolation('zoh');
-
-
-wheels_speed_meas_ts = timeseries(wheels_speed_meas, t_array);
-wheels_speed_meas_ts.DataInfo.Interpolation = tsdata.interpolation('zoh');
-
-wheels_speed_des = results.wheels_speed_desired;
-wheels_speed_des = wheels_speed_des(1:N_samples, :); 
-wheels_speed_des_ts = timeseries(wheels_speed_des, t_array);
-wheels_speed_des_ts.DataInfo.Interpolation = tsdata.interpolation('zoh');
-
-omega_gyro = - results.gyro(1:N_samples, 3); 
-omega_gyro_ts = timeseries(omega_gyro, t_array);
+ 
+omega_gyro_ts = timeseries(w_gyro, t_array);
 omega_gyro_ts.DataInfo.Interpolation = tsdata.interpolation('zoh');
 
 % from calibration
 q_motion_capture_cal = q_motion_capture_cal(1:N_samples, :);
 q_motion_capture_ts = timeseries(q_motion_capture_cal, t_array);
 q_motion_capture_ts.DataInfo.Interpolation = tsdata.interpolation('zoh');
-
-%% Prepare Data for the Simulink
 
 
 %% Initial State for localization
@@ -199,7 +214,7 @@ Q_INIT = q_motion_capture_cal(1,:)';
 Q_INIT_LOC = Q_INIT;
 
 [P_INIT_EKF, D, R_2, R_3, R_4] = initialize_kalman_cov(T_s);
-Z_INIT_EKF = [Q_INIT; 0; 0; 0; 0]; 
+Z_INIT_EKF = [Q_INIT_LOC; 0; 0; 0; 0]; 
 PHI_INIT = [0;0];
 p_loss = 0;
 test_case = 1;
@@ -221,8 +236,8 @@ H_motion_cap = [1, 0, 0, 0, 0, 0, 0;
 %% Covariance matrix
 
 ENCODER_QUANTIZATION = 2 * pi / 4096;
-var_IMU = 0.001;
-var_motion_capture = 0.001;
+var_IMU = 0.1;
+var_motion_capture = 0.01;
  
 % EKF initil covariance
 P_INIT_EKF = diag([0.001, 0.001, 0.0175/6, 0.0175/6, 0.0175/6, 0.0175/6*T_s, 0.0175/6*T_s].^2);
@@ -268,7 +283,7 @@ H = [H_motion_cap ; H_enc; H_gyro];
 % set simulation params
 test_case = 3;
 p_loss_values = [1.0, 0.99, 0];
-p_loss = p_loss_values(3);     % useful just for case 3
+p_loss = p_loss_values(2);     % useful just for case 3
 
 
 %% Run simulation
@@ -289,6 +304,6 @@ P_filt_EKF = out.P_filt_EKF.signals.values;
 q_loc_EKF = z_estimate(1:3,:,:);
 
 
-%%
+s%%
 plot_EKF_results(q_motion_capture', q_loc_exact, q_loc_EKF);
 

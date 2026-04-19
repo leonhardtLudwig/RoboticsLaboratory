@@ -45,6 +45,25 @@ N_samples = size(q4id, 1) - 1;
 % w_gyro va: estratta comp z, ribaltata, rad/s, bias 0.1 (calibrazione)
 w_gyro = -gyro(:,3) * 0.1 * (pi / 180); 
 
+%% PLOT DI VERIFICA DATI
+
+plot_unicycle_2D(q_motion_capture(1:200,:)',50);
+plot_wheels_speed(omega_wheels(1:200,:)', T_s);
+
+N = size(w_gyro, 1);
+t = (0:N-1)' * T_s;
+figure();
+plot(t(1:200),w_gyro(1:200));
+%%
+% derive w_z with omega wheels:
+w_odom = (r / d) * (omega_wheels(:, 2) - omega_wheels(:, 1));
+figure();
+%plot(t_array(1:200),w_odom(1:200));
+
+plot(t_array(1:200),w_gyro(1:200)-w_odom(1:200))
+
+% tutti i dati sono coerenti (traiettoria opposta a des)
+
 %% START IDENTIFICATION / CALIBRATION
 
 [PHI, Y] = get_phi_reg(q4id, omega_wheels, T_s);

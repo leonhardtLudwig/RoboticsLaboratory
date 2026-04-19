@@ -1,4 +1,4 @@
-%% Experi+mental Activity 1 (EA1): Planning, Localization, and Identification
+%% Experimental Activity 1 (EA1): Planning, Localization, and Identification
 %% PART 1
 
 clear all;
@@ -35,7 +35,7 @@ Q_INIT_LOC = Q_INIT;
 
 
 % Compute wheel velocities (Inverse Kinematics)
-omega_wheels = []
+omega_wheels = [];
 
 % Verify hardware constraints
 max_wL = max(abs(wL));
@@ -46,8 +46,6 @@ if max_wL > wM || max_wR > wM
 else
     fprintf('Hardware constraints respected. Max speeds: wL=%.2f, wR=%.2f\n', max_wL, max_wR);
 end
-
-
 
 
 %% Time law
