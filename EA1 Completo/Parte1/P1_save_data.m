@@ -8,7 +8,7 @@ i = 1;
 
 %%
 % qui mettiamo il nome del simulink
-sim_output = sim('P3_SIM');
+sim_output = sim('Part1_FIXED.slx');
 
 %% estrazione tag 
 
