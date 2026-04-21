@@ -23,7 +23,7 @@ d_id = 0.18428;
 
 
 Ta = 1;
-Tc = 10;
+Tc = 20;
 T_SIM = 2*Ta + Tc;
 
 % Time law
@@ -31,13 +31,13 @@ t = 0:T_s:T_SIM;
 [s, s_dot] = time_law_trapezoidal(t, Ta, Tc);
     
 % S Traj generation
-%r = 0.03316;
-%d = 0.18428;
-%qi = [-0.5; -0.5; pi/2];
-%qf = [0.5; 0.5; pi/2];
-%ki = 4;
-%kf = 4;
-%[v,w] = trajectory_plan_cartisian(qi, qf, ki, kf, s,s_dot);
+% r = 0.03316;
+% d = 0.18428;
+% qi = [-0.5; -0.5; pi/2];
+% qf = [0.5; 0.5; pi/2];
+% ki = 4;
+% kf = 4;
+% [v,w] = trajectory_plan_cartisian(qi, qf, ki, kf, s,s_dot);
 
 % 8 shape generation
 r = 0.03;
