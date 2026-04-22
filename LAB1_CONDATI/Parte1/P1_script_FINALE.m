@@ -9,7 +9,7 @@ addpath(genpath(fullfile(pwd,'..','utils')));
 T_s = 0.04; 
 r = 0.03;
 d = 0.165;
-omega_max = 10;
+w_max = 10;
 
 %% Eight-shape trajectory parameters 
 R = 0.4;
@@ -49,8 +49,8 @@ Q_INIT_LOC = Q_INIT;
 % % EKF measurement noise (GPS + delta wheels angles)
 % R_4 = diag(([0.001, 0.001, ENCODER_QUANTIZATION/6,ENCODER_QUANTIZATION/6]).^2);
 
-Z_INIT_EKF = [Q_INIT; 0; 0; 0; 0]; 
-PHI_INIT = [0;0];
+% Z_INIT_EKF = [Q_INIT; 0; 0; 0; 0]; 
+% PHI_INIT = [0;0];
 
 
 %% RUN EXPERIMENT PART 1
@@ -67,10 +67,10 @@ T_SIM = Ta*2+Tc;
 
 %% Run Simulation (or manually run simulink)
 
-simulink_model_name = 'Part1_second_try'; 
-out = sim(simulink_model_name,T_SIM);
-
-disp('Simulation completed');
+% simulink_model_name = 'Part1_second_try'; 
+% out = sim(simulink_model_name,T_SIM);
+% 
+% disp('Simulation completed');
 
 
 %% Save Data
@@ -93,7 +93,7 @@ q_des = out.q_des.signals.values;
 acce = out.acce.signals.values;
 gyro = out.gyro.signals.values;
 w_gyro = out.w_gyro.signals.values;
-q_motion_capture = out.q_motion_capture.signals.values; 
+q_motion_capture = out.motion_capture.signals.values; 
 ws_des = out.wheels_speed_des.signals.values;
 ws_meas = out.wheels_speed_meas.signals.values;
       
@@ -109,10 +109,12 @@ results_part1(i).q_motion_capture = q_motion_capture;
 results_part1(i).ws_des = ws_des;
 results_part1(i).ws_meas = ws_meas;
 results_part1(i).out_backup = out_backup;
+
       
 %% Plot
 q_motion_cap = results_part1(1).q_motion_capture;
 
-plot_unicycle_2D(q_motion_cap',50);
+plot_wheels_speed(ws_meas',T_s);
+% plot_unicycle_2D(q_motion_cap',50);
 
 %%

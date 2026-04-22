@@ -1,4 +1,4 @@
-    %% Experimental Activity 1 (EA1): Planning, Localization, and Identification
+%% Experimental Activity 1 (EA1): Planning, Localization, and Identification
 %% PART 1
 
 clear all;
@@ -15,25 +15,46 @@ omega_max = 10;
 R = 0.4;
 omega_trj = 2*pi;
 
-%% Get an eight-shaped geometric path (computed online, here we just need initial position)
-% 
-% % Sample the space variable s uniformly in [0,1]
-% N_samples = 1000; % arbitrary
-% s = linspace(0,1, N_samples); 
-% 
-% [x_s, y_s, x_s_dot, y_s_dot, x_s_ddot, y_s_ddot] = gen_eight_shape_trajectory(R, omega_trj, s);
-% 
-% %% Sample s and get q trajectory with differential flatness
-% 
-% % (u contains geometric input)
-% [q, u] = cartisian_flatness(x_s, y_s, x_s_dot, y_s_dot, x_s_ddot, y_s_ddot);
-% 
-% Q_INIT = q(:,1);
+%% Time law
+Ta = 1;
+Tc = 30;
+T_SIM = 2*Ta + Tc;
 
-Q_INIT = [0; 0; atan2((R*omega_trj), (2*R*omega_trj))];  % atan(2,1)
+t = 0:T_s:T_SIM;
+[s, s_dot] = time_law_trapezoidal(t, Ta, Tc);
+
+% Get an eight-shaped geometric path (computed online, here we just need initial position)
+[x_s, y_s, x_s_dot, y_s_dot, x_s_ddot, y_s_ddot] = gen_eight_shape_trajectory(R, omega_trj, s);
+
+% (u contains geometric input)
+[q, u] = cartisian_flatness(x_s, y_s, x_s_dot, y_s_dot, x_s_ddot, y_s_ddot);
+
+%%
+% Plot functions for 2D and time
+plot_unicycle_2D(q,50)
+plot_unicycle_wrt_time(q, u, T_s);
+
+[q_dot, omega_wheels] = DDR_Unicycle(q, u, d, r);
+
+plot_wheels_speed(omega_wheels, T_s);
+
+fprintf('max wheel speed: %.3f rad/s\n', max(abs(omega_wheels(:))))
+%%
+omega_wheels = omega_wheels';
+N_samples = size(omega_wheels, 1);
+t_array = (0:N_samples-1)' * T_s;
+
+wheels_speed_des = omega_wheels(1:N_samples, :); 
+wheels_speed_des_ts = timeseries(wheels_speed_des, t_array);
+wheels_speed_des_ts.DataInfo.Interpolation = tsdata.interpolation('zoh');
+
+% Initial State for localization
+
+Q_INIT = q(:,1);
+    
 Q_INIT_LOC = Q_INIT;
 
-%% Time law
+
 
 
 %% EKF parameters
