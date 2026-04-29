@@ -56,7 +56,6 @@ T_SIM = Ta*2+Tc;
 
 
 %% Save Data
-%% Save Data
 % Definizione del template della struct
 results = struct('T_s', [], ...
                  'Ta', [], ...

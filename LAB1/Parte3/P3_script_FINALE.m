@@ -11,8 +11,8 @@ r = 0.03316;
 d = 0.18428;
 omega_max = 10;
 
-r_id = r;
-d_id = d;
+r_actual = r;
+d_actual = d;
 
 %% 3.1
 % Plan trajectory with trapezoidal time law
@@ -70,7 +70,6 @@ Q_INIT = q(:,1);
     
 Q_INIT_LOC = Q_INIT;
 
-[P_INIT_EKF, D, R_2, R_3, R_4] = initialize_kalman_cov(T_s);
 Z_INIT_EKF = [Q_INIT; 0; 0; 0; 0]; 
 PHI_INIT = [0;0];
 
@@ -81,7 +80,7 @@ H_enc = [0, 0, 0, 1, 0, 0, 0;
          0, 0, 0, 0, 1, 0, 0];
 
 % IMU (wz_gyro)
-H_gyro = [0, 0, 0, 0, 0, -r_id/d_id, r_id/d_id];
+H_gyro = [0, 0, 0, 0, 0, -r_actual/d_actual, r_actual/d_actual];
      
 % Motion capture (State)
 H_motion_cap = [1, 0, 0, 0, 0, 0, 0;
