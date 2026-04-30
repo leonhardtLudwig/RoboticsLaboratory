@@ -31,21 +31,21 @@ t = 0:T_s:T_SIM;
 [s, s_dot] = time_law_trapezoidal(t, Ta, Tc);
     
 % S Traj generation
-% r = 0.03316;
-% d = 0.18428;
-% qi = [-0.5; -0.5; pi/2];
-% qf = [0.5; 0.5; pi/2];
-% ki = 4;
-% kf = 4;
-% [v,w] = trajectory_plan_cartisian(qi, qf, ki, kf, s,s_dot);
+r = 0.03316;
+d = 0.18428;
+qi = [-0.5; -0.5; pi/2];
+qf = [0.5; 0.5; pi/2];
+ki = 4;
+kf = 4;
+[v,w] = trajectory_plan_cartisian(qi, qf, ki, kf, s,s_dot);
 
 % 8 shape generation
-r = 0.03;
-d = 0.165;
-R_8_shape = 0.4;
-omega_8_shape = 2*pi;
-[v, w, wL_8, wR_8, q_des_8] = eight_shape_plan(s, s_dot, R_8_shape, omega_8_shape, r, d);
-qi = q_des_8(:, 1);
+% r = 0.03;
+% d = 0.165;
+% R_8_shape = 0.4;
+% omega_8_shape = 2*pi;
+% [v, w, wL_8, wR_8, q_des_8] = eight_shape_plan(s, s_dot, R_8_shape, omega_8_shape, r, d);
+% qi = q_des_8(:, 1);
     
 %% 3.2 Test the trajectory 
 q = simulate_unicycle(qi, v, w, T_s);
