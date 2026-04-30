@@ -16,8 +16,9 @@ d_actual = d_nominal;
 % d_actual = 0.1694;
 omega_M = 12;
 
-controller_index = 3; % 1->lin, 2->nonlin, 3->FL
-trj_index = 4;% 1->line, 2->circle, 3->square, 4->8-shaped
+controller_index = 3;   % 1->lin, 2->nonlin, 3->FL
+trj_index = 2;          % 1->line, 2->circle, 3->square, 4->8-shaped
+
 
 % --- line (1/T_trj [m/s] along the Y axis)
 if trj_index == 1
@@ -44,7 +45,7 @@ end
 %% Set controller parameters
 if controller_index == 1
     % linear
-    xi = 0.9; 
+    xi = 0.707; 
     a = 5;
     control_par = [xi, a, 0];
 elseif controller_index ==2
