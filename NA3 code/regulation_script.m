@@ -16,6 +16,7 @@ d_actual = d_nominal;
 % d_actual = 0.1694;
 omega_M = 12;
 
+
 controller_index = 1; % 1->cartesian, 2->posture
 flg_replanning = true;
 % desired configuration
