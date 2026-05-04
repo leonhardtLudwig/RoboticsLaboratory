@@ -15,26 +15,31 @@ d_actual = d_nominal;
 % r_actual = 0.0302;
 % d_actual = 0.1694;
 omega_M = 12;
+T_s = 0.001;
 
-controller_index = 3;   % 1->lin, 2->nonlin, 3->FL
-trj_index = 2;          % 1->line, 2->circle, 3->square, 4->8-shaped
+controller_index = 1;   % 1->lin, 2->nonlin, 3->FL
+trj_index = 1;          % 1->line, 2->circle, 3->square, 4->8-shaped
 
-
-% --- line (1/T_trj [m/s] along the Y axis)
+%% Setup
+% set trajectory
 if trj_index == 1
-    Q_INIT = [1; 0.; pi/2];
-    T_trj = 2;
+    % --- line (1/T_trj [m/s] along the Y axis)
+    Q_INIT = [0.1; 0.; pi/2];
+    T_trj = 10;  % 2
     T_SIM = 10;
+
 elseif trj_index == 2
     % --- circle (radius 0.5 [m] with angular vel 2*pi/T_trj)
     Q_INIT = [0.1; -0.2; pi/2];
     T_trj = 5;
     T_SIM = 10;
+
 elseif trj_index == 3
     % --- square (side_length 1 [m] with linear velocity side_length/(T_trj/4)[m/s])
     Q_INIT = [0.1; 0.; pi/2];
     T_trj = 20;
     T_SIM = 40;
+
 else 
     % --- 8-shape (R=0.4 [m] with period T_trj)
     Q_INIT = [.2; 0.; pi/2];
@@ -42,7 +47,7 @@ else
     T_SIM = T_trj*4;
 end
 
-%% Set controller parameters
+% set_controller_parametes
 if controller_index == 1
     % linear
     xi = 0.707; 
@@ -62,3 +67,24 @@ elseif controller_index ==3
 end
 
 
+
+
+%% Run Simulation
+out = sim(sim_trajectory_tracking,T_SIM);
+disp('Simulation completed');
+
+state_error = out.state_error.signals.values; 
+ws_des = out.ws_des.signals.values;
+ws_des_sat = out.ws_des_sat.signals.values;
+q_des = out.q_des.signals.values;
+q_actual = out.q_actual.signals.values;
+
+%% Plot
+
+% plot_ws_acutal_vs_sat(ws_des, ws_des_sat, T_s)
+plot_error_dynamics(e_norm, T_s)
+plot_tracking(q_des, q_actual)
+
+
+    
+   

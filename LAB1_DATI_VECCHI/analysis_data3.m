@@ -219,7 +219,7 @@ N = size(w_odom, 1);
 t = (0:N-1)' * T_s;
 
 % 1. CALCOLO DELL'ERRORE E DEL BIAS
-error_w = w_des - w_gyro;
+error_w = w_mocap - w_gyro;
 max_err = max(error_w);
 
 plot(t,error_w);
