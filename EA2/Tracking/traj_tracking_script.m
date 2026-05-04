@@ -17,7 +17,6 @@ omega_max = 10;
 omega_M = 10;
 T_s = 0.04;
 
-
 r_actual = 0.03316;
 d_actual = 0.18428;
 
