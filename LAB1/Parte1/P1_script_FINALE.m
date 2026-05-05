@@ -1,6 +1,7 @@
 %% Experimental Activity 1 (EA1): Planning, Localization, and Identification
 %% PART 1
 
+
 clear all;
 close all;
 addpath(genpath(fullfile(pwd,'..','utils')));
