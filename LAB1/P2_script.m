@@ -155,6 +155,8 @@ r_actual = r_cal_hat;
 d_actual = d_cal_hat;
 
 % New Identified params: r_actual = 0.03293 ; d_actual = 0.16040
+
+
 %% Prepare Data for the Simulink (Part2)
 
 N_samples = size(ws_meas, 1);
@@ -201,10 +203,21 @@ H_motion_cap = [1, 0, 0, 0, 0, 0, 0;
                 0, 0, 1, 0, 0, 0, 0]; 
 
 %% Covariance matrix
-T_SIM = 15;
-ENCODER_QUANTIZATION = 0.001; % 2 * pi / 4096
-var_IMU = 0.1;
+
+ENCODER_QUANTIZATION = 2 * pi / 4096;
+var_IMU = 0.0001;
 var_motion_capture = 0.001;
+
+var_x_mocap  = 1.042408e-07;
+var_y_mocap  = 2.377908e-08;
+var_th_mocap = 1.944852e-07;
+var_ws_L     = 1.960914e-07;
+var_ws_R     = 1.960914e-07;
+var_w_gyro   = 8.860510e-04;
+
+sigma_motion_capture = 1e-3;        % fix
+sigma_enc = ENCODER_QUANTIZATION/sqrt(12);  % theorical?
+sigma_imu = 0.03;                   % from residual analysis
  
 % EKF initil covariance
 P_INIT_EKF = diag([0.001, 0.001, 0.0175/6, 0.0175/6, 0.0175/6, 0.0175/6*T_s, 0.0175/6*T_s].^2);
@@ -215,11 +228,12 @@ D = diag([0.001, 0.001, 0.0175/6, 0.0175/6, 0.0175/6, 0.0175/6*T_s, 0.0175/6*T_s
 % [x,y,theta,deltaphiL,deltaphi_R,deltaphi_dotL,deltaphi_dotR]
 % [position, .., heading (drift), enc_states, .. , .. , .. , ..]
 
-D = diag([0.1, 0.1, 0.10, 0.0175/6, 0.0175/6, 0.0175/6*T_s, 0.0175/6*T_s].^2);
+D = diag([1.5e-3, 1.5e-3, 1e-2, 0.0175/6, 0.0175/6, 0.0175/6*T_s, 0.0175/6*T_s].^2);
     
+
 % Encoder + IMU + motion capture
-R_3 = diag(([var_motion_capture, var_motion_capture, var_motion_capture, ...
-             ENCODER_QUANTIZATION/6, ENCODER_QUANTIZATION/6, var_IMU]).^2);
+R_3 = diag(([sigma_motion_capture, sigma_motion_capture, sigma_motion_capture, ...
+             sigma_enc, sigma_enc, sigma_imu]).^2);
 
 
 %% VERSION WITH H FULL
@@ -228,12 +242,12 @@ R_3 = diag(([var_motion_capture, var_motion_capture, var_motion_capture, ...
 
 % test case 1: Only encoder 
 % test case 2: Encoder + IMU 
-% test case 3: Encoder + IMU + motion capture (𝑝𝑙𝑜𝑠𝑠 = 0.9) 
-% test case 4: Encoder + IMU + motion capture (𝑝𝑙𝑜𝑠𝑠 = 0.99) 
+% test case 3.3: Encoder + IMU + motion capture (𝑝𝑙𝑜𝑠𝑠 = 0.9) 
+% test case 3.2: Encoder + IMU + motion capture (𝑝𝑙𝑜𝑠𝑠 = 0.99) 
 
-test_case = 1;
+test_case = 3;
 p_loss_values = [1.0, 0.99, 0.9, 0.0];
-p_loss = p_loss_values(3);     % useful just for case 3
+p_loss = p_loss_values(2);     % useful just for case 3
 
 
 %% Run simulation
@@ -252,8 +266,14 @@ z_estimate = out.z_EKF.signals.values;
 P_filt_EKF = out.P_filt_EKF.signals.values;
 
 q_loc_EKF = z_estimate(1:3,:,:);
+%%
 
+plot_ekf_error_analysis(t_array, q_loc_EKF, P_filt_EKF, q_motion_capture_cal)
+% plot_ekf_uncertainty(t_array, q_loc_EKF, P_filt_EKF, q_motion_capture_cal)
+
+%%
 plot_EKF_results(q_motion_capture', q_loc_exact, q_loc_EKF);
+plot_covariance_analysis(t_array, P_filt_EKF)
 
 
 %% Save Data
@@ -262,7 +282,7 @@ plot_EKF_results(q_motion_capture', q_loc_exact, q_loc_EKF);
 % test case 2: Encoder + IMU 
 % test case 3: Encoder + IMU + motion capture (𝑝𝑙𝑜𝑠𝑠 = 0.9) 
 % test case 4: Encoder + IMU + motion capture (𝑝𝑙𝑜𝑠𝑠 = 0.99) 
-i = 2;
+i = 4;
 
 results_template = struct('T_s', [], ...
                           'Ta', [], ...
@@ -308,3 +328,6 @@ results_part2(i).P_filt_EKF = P_filt_EKF;
 results_part2(i).z_EKF = z_estimate;      
 
 results_part2(i).out_backup = out;
+
+%%
+save('results_part2.mat', 'results_part2')
