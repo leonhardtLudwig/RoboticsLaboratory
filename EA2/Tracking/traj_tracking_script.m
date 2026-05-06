@@ -7,7 +7,7 @@ addpath(genpath(fullfile(pwd,'..','utils')));
 addpath(genpath(fullfile(pwd,'..','..','utils')));
 
 %% Set simulation parameters
- r_nominal = 0.03;
+r_nominal = 0.03;
 d_nominal = 0.165;
 %r = r_nominal;
 %d = d_nominal;
@@ -64,10 +64,9 @@ wR_max = (v_circ + (d_actual/2)*w_circ) / r_actual
 
 
 %%
-controller_index = 1;   % 1->lin, 2->nonlin, 3->FL
+controller_index = 3;   % 1->lin, 2->nonlin, 3->FL
 trj_index = 2;          % 2->circle, 5->S-traj
-state_type = 2; % 1 = motion capture, 2 = loc euler, 3 = loc rk2, 4 = exact loc
-
+state_type = 2;         % 1 = loc ekf, 2 = loc euler, 3 = loc rk2, 4 = exact loc
 
 
 if trj_index == 2
@@ -91,23 +90,30 @@ elseif trj_index == 5
     
 end
 
+%% VERSION WITH H FULL
+
+% set simulation params
+i = 2;
+
+p_loss_values = [1.0, 0.99, 0.90, 0];
+p_loss = p_loss_values(i); 
 
 
 %% Set controller parameters
 if controller_index == 1
     % linear
-    xi = 0.707; 
-    a = 1.5;    % 1 to have zero saturation
+    xi = 0.9; 
+    a = 2;    % 1 to have zero saturation
     control_par = [xi, a, 0];
 elseif controller_index ==2
     % nonlinear
-    xi = 1; 
+    xi = 0.7; 
     b = 40;
     control_par = [xi, b, 0];
 elseif controller_index ==3
     % feedback_linearization
-    k1 = 4; 
-    k2 = 4;
+    k1 = 2; 
+    k2 = 2;
     b = 0.05;   % potrebbe dare problemi (divisione per zero)
     control_par = [k1, k2,b];
 end
@@ -154,12 +160,6 @@ R_3 = diag(([sigma_motion_capture, sigma_motion_capture, sigma_motion_capture, .
              sigma_enc, sigma_enc, sigma_imu]).^2);
 
 
-%% VERSION WITH H FULL
 
-% set simulation params
-i = 1;
-
-p_loss_values = [1.0, 0.99, 0];
-p_loss = p_loss_values(i); 
 
 

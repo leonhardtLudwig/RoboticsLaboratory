@@ -17,17 +17,17 @@ omega_max = 10;
 T_s = 0.04;
 
 
-r_actual = 0.03316;
-d_actual = 0.18428;
+r_actual = 0.03293;
+d_actual = 0.16040;
 
 r = r_actual;
 d = d_actual;
 
 
 
-
+tol = 0.001;
 controller_index = 2; % 1->cartesian, 2->posture
-state_type =4; % 1 = motion capture, 2 = motion capture CAL, 3 = loc euler, 4 = loc rk2, 5 = exact loc
+state_type =1; % 1 = motion capture, 2 = motion capture CAL, 3 = loc euler, 4 = loc rk2, 5 = exact loc
  flg_replanning = true;
 % desired configuration
 q_d = [0;0;0];
@@ -40,13 +40,13 @@ T_SIM = 20;
 if controller_index == 1
     % cartesian
     k_1 = 1; 
-    k_2 = 10;
+    k_2 = 3;
     control_par = [k_1, k_2, 0];
 else
     % posture
-    k_1 = 1; 
-    k_2 = 0.2;
-    k_3 = 0.5;
+    k_1 = 0.8; 
+    k_2 = 0.75;
+    k_3 = 0.3;
     control_par = [k_1, k_2, k_3];
 end
 
@@ -104,7 +104,7 @@ R_3 = diag(([sigma_motion_capture, sigma_motion_capture, sigma_motion_capture, .
 %% VERSION WITH H FULL
 
 % set simulation params
-i = 1;
+i = 2;
 
-p_loss_values = [1.0, 0.99, 0];
+p_loss_values = [1.0, 0.99, 0.90, 0];
 p_loss = p_loss_values(i); 
