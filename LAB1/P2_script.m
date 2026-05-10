@@ -215,9 +215,9 @@ var_ws_L     = 1.960914e-07;
 var_ws_R     = 1.960914e-07;
 var_w_gyro   = 8.860510e-04;
 
-sigma_motion_capture = 1e-3;        % fix
+sigma_motion_capture = 5e-3;        % fix
 sigma_enc = ENCODER_QUANTIZATION/sqrt(12);  % theorical?
-sigma_imu = 0.03;                   % from residual analysis
+sigma_imu = 1e-2;                   % from residual analysis
  
 % EKF initil covariance
 P_INIT_EKF = diag([0.001, 0.001, 0.0175/6, 0.0175/6, 0.0175/6, 0.0175/6*T_s, 0.0175/6*T_s].^2);
@@ -228,13 +228,12 @@ D = diag([0.001, 0.001, 0.0175/6, 0.0175/6, 0.0175/6, 0.0175/6*T_s, 0.0175/6*T_s
 % [x,y,theta,deltaphiL,deltaphi_R,deltaphi_dotL,deltaphi_dotR]
 % [position, .., heading (drift), enc_states, .. , .. , .. , ..]
 
-D = diag([1.5e-3, 1.5e-3, 1e-2, 0.0175/6, 0.0175/6, 0.0175/6*T_s, 0.0175/6*T_s].^2);
+D = diag([1e-3, 1e-3, 1e-2, 0.0175/6, 0.0175/6, 0.0175/6*T_s, 0.0175/6*T_s].^2);
     
 
 % Encoder + IMU + motion capture
 R_3 = diag(([sigma_motion_capture, sigma_motion_capture, sigma_motion_capture, ...
              sigma_enc, sigma_enc, sigma_imu]).^2);
-
 
 %% VERSION WITH H FULL
 
@@ -270,11 +269,10 @@ q_loc_EKF = z_estimate(1:3,:,:);
 
 plot_ekf_error_analysis(t_array, q_loc_EKF, P_filt_EKF, q_motion_capture_cal)
 % plot_ekf_uncertainty(t_array, q_loc_EKF, P_filt_EKF, q_motion_capture_cal)
+plot_covariance_analysis(t_array, P_filt_EKF)
 
 %%
 plot_EKF_results(q_motion_capture', q_loc_exact, q_loc_EKF);
-plot_covariance_analysis(t_array, P_filt_EKF)
-
 
 %% Save Data
 
@@ -314,6 +312,8 @@ results_part2(i).T_s = T_s;
 results_part2(i).Ta = results.Ta; 
 results_part2(i).Tc = results.Tc; 
 results_part2(i).p_loss = p_loss;
+results_part2(i).D = D;
+results_part2(i).R = R_3;
 
 results_part2(i).q_des = q_des;
 results_part2(i).q_loc_euler = q_loc_euler;

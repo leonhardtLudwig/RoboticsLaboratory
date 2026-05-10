@@ -1,6 +1,6 @@
 function plot_ekf_error_analysis(time_vector, q_loc_EKF, P_filt_EKF, ground_truth)
     % PLOT_EKF_ERROR_ANALYSIS Plots the estimation error (EKF - Ground Truth) 
-    % bounded by the 3-sigma confidence intervals.
+    % bounded by the 3-sigma confidence intervals and prints average errors.
     %
     % INPUTS:
     %   time_vector: array of time steps
@@ -42,6 +42,30 @@ function plot_ekf_error_analysis(time_vector, q_loc_EKF, P_filt_EKF, ground_trut
     % For orientation, compute the shortest angular distance
     err_theta = angdiff(gt_theta, est_theta); 
 
+    % --- STATISTICAL ANALYSIS (Omitting NaNs) ---
+    valid_idx = ~isnan(err_x); % Find indices where ground truth exists
+    
+    % Mean Error (Bias)
+    mean_err_x = mean(err_x(valid_idx));
+    mean_err_y = mean(err_y(valid_idx));
+    mean_err_th = mean(err_theta(valid_idx));
+    
+    % Root Mean Square Error (RMSE)
+    rmse_x = sqrt(mean(err_x(valid_idx).^2));
+    rmse_y = sqrt(mean(err_y(valid_idx).^2));
+    rmse_th = sqrt(mean(err_theta(valid_idx).^2));
+
+    % fprintf('\n--- EKF Estimation Error Analysis ---\n');
+    % fprintf('Mean Error (Bias):\n');
+    % fprintf('  X     : %+.4f [m]\n', mean_err_x);
+    % fprintf('  Y     : %+.4f [m]\n', mean_err_y);
+    % fprintf('  Theta : %+.4f [rad]\n', mean_err_th);
+    % fprintf('Root Mean Square Error (RMSE):\n');
+    % fprintf('  X     : %.4f [m]\n', rmse_x);
+    % fprintf('  Y     : %.4f [m]\n', rmse_y);
+    % fprintf('  Theta : %.4f [rad]\n\n', rmse_th);
+    % --------------------------------------------
+
     % Extract variances (diagonal elements of P) and force to column vectors
     var_x = squeeze(P_filt_EKF(1, 1, :)); var_x = var_x(:);
     var_y = squeeze(P_filt_EKF(2, 2, :)); var_y = var_y(:);
@@ -57,9 +81,10 @@ function plot_ekf_error_analysis(time_vector, q_loc_EKF, P_filt_EKF, ground_trut
         error('Dimension mismatch: time_vector length (%d) does not match EKF data length (%d).', N, length(est_x));
     end
 
-    % Plot Error for X Position
+    % --- PLOTTING ---
     figure('Name', 'EKF Error Analysis (EKF - Truth)', 'Color', 'w');
     
+    % Plot Error for X Position
     subplot(3, 1, 1);
     hold on; grid on;
     % Create shaded region for uncertainty centered at zero
@@ -69,7 +94,7 @@ function plot_ekf_error_analysis(time_vector, q_loc_EKF, P_filt_EKF, ground_trut
     plot(time_vector, err_x, 'b', 'LineWidth', 1.5);
     yline(0, 'k--', 'LineWidth', 1); % Zero reference line
     ylabel('Error X [m]');
-    title('Estimation Error bounded by \pm3\sigma Covariance');
+    title(sprintf('Estimation Error bounded by \\pm3\\sigma (RMSE X: %.3f m)', rmse_x));
     legend('\pm3\sigma Covariance', 'Estimation Error', 'Location', 'best');
 
     % Plot Error for Y Position
@@ -81,6 +106,7 @@ function plot_ekf_error_analysis(time_vector, q_loc_EKF, P_filt_EKF, ground_trut
     plot(time_vector, err_y, 'r', 'LineWidth', 1.5);
     yline(0, 'k--', 'LineWidth', 1);
     ylabel('Error Y [m]');
+    title(sprintf('RMSE Y: %.3f m', rmse_y));
 
     % Plot Error for Theta
     subplot(3, 1, 3);
@@ -92,4 +118,5 @@ function plot_ekf_error_analysis(time_vector, q_loc_EKF, P_filt_EKF, ground_trut
     yline(0, 'k--', 'LineWidth', 1);
     ylabel('Error \theta [rad]');
     xlabel('Time [s]');
+    title(sprintf('RMSE \\theta: %.3f rad', rmse_th));
 end

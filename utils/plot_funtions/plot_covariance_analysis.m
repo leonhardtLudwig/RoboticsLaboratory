@@ -1,4 +1,3 @@
-
 function plot_covariance_analysis(time_vector, P_filt_EKF)
     % PLOT_COVARIANCE_ANALYSIS Plots the standard deviation (1-sigma) of the 
     % primary states (x, y, theta) over time to evaluate EKF confidence.
