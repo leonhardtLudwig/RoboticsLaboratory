@@ -39,17 +39,23 @@ exp_3.ws_meas = results_part1(3).ws_meas;
 %%
 
 
-plot_unicycle_trajectory(exp_1.q_des, exp_1.q_motion_capture);
+plot_unicycle_trajectory(exp_1.q_des, exp_1.q_motion_capture,'Tc = 30');
 id1 = id_unicycle(exp_1);
 
-plot_unicycle_trajectory(exp_2.q_des, exp_2.q_motion_capture);
+plot_unicycle_trajectory(exp_2.q_des, exp_2.q_motion_capture,'Tc = 18');
 id2 = id_unicycle(exp_2);
 
 
-plot_unicycle_trajectory(exp_3.q_des, exp_3.q_motion_capture);
+plot_unicycle_trajectory(exp_3.q_des, exp_3.q_motion_capture, 'Tc = 45');
 id3 = id_unicycle(exp_3);
 %%
 
-plot_unicycle_trajectory_calibrated(exp_1.q_des, exp_1.q_motion_capture,id1.q_motion_capture_cal);
-plot_unicycle_trajectory_calibrated(exp_2.q_des, exp_2.q_motion_capture,id2.q_motion_capture_cal);
-plot_unicycle_trajectory_calibrated(exp_3.q_des, exp_3.q_motion_capture,id3.q_motion_capture_cal);
+plot_unicycle_trajectory_calibrated(exp_1.q_des, exp_1.q_motion_capture,id1.q_motion_capture_cal,'Tc = 30');
+plot_unicycle_trajectory_calibrated(exp_2.q_des, exp_2.q_motion_capture,id2.q_motion_capture_cal,'Tc = 18');
+plot_unicycle_trajectory_calibrated(exp_3.q_des, exp_3.q_motion_capture,id3.q_motion_capture_cal,'Tc = 45');
+
+%%
+
+plot_wheel_speeds_exp(exp_1);
+plot_wheel_speeds_exp(exp_2);
+plot_wheel_speeds_exp(exp_3);

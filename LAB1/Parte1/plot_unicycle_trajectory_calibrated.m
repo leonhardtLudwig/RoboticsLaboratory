@@ -1,4 +1,4 @@
-function plot_unicycle_trajectory_calibrated(trajectory_ideal, trajectory_actual, trajectory_calibrated)
+function plot_unicycle_trajectory_calibrated(trajectory_ideal, trajectory_actual, trajectory_calibrated,label)
     % PLOT_UNICYCLE_TRAJECTORY_CALIBRATED Plots ideal, actual, and calibrated trajectories.
     %
     % Input:
@@ -73,7 +73,7 @@ function plot_unicycle_trajectory_calibrated(trajectory_ideal, trajectory_actual
     grid on;
     xlabel('X');
     ylabel('Y');
-    title('Ideal vs Actual vs Calibrated Trajectory');
+    title(['Ideal vs Actual vs Calibrated Trajectory ', label]);
     legend('Location', 'best');
     
     hold off;

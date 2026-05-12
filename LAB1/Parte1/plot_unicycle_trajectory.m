@@ -1,4 +1,4 @@
-function plot_unicycle_trajectory(trajectory_ideal, trajectory_actual)
+function plot_unicycle_trajectory(trajectory_ideal, trajectory_actual, label)
     % PLOT_UNICYCLE_TRAJECTORY Plots ideal vs actual trajectories with unicycle symbols.
     %
     % Input:
@@ -64,7 +64,7 @@ function plot_unicycle_trajectory(trajectory_ideal, trajectory_actual)
     grid on;
     xlabel('X');
     ylabel('Y');
-    title('Ideal vs Actual Trajectory with Unicycle Symbols');
+    title(['Ideal vs Actual Trajectory with Unicycle Symbols ', label]);
     legend('Location', 'best');
     
     hold off;
