@@ -1,6 +1,6 @@
 function plot_4_unicycle_orientation_error(traj1, traj2, traj3, traj4, legend_labels, plot_title)
     % PLOT_4_UNICYCLE_ORIENTATION_ERROR Plotta l'errore di orientazione 
-    % (con angle wrapping) per 4 traiettorie.
+    % (con angle wrapping) per 4 traiettorie rispetto al tempo.
     %
     % Input:
     %   traj1, traj2, traj3, traj4 - Matrici 3xN (x, y, theta)
@@ -14,14 +14,19 @@ function plot_4_unicycle_orientation_error(traj1, traj2, traj3, traj4, legend_la
             error('Errore: La traiettoria %d non ha 3 righe (x, y, theta).', i);
         end
     end
-
+    
     % Colori e stili
     colors = {'r', 'b', 'g', 'm'};
     line_styles = {'-', '-', '-', '-'}; 
-
-    % Setup della figura
-    figure('Name', 'Orientation Error Comparison', 'Color', 'w');
+    
+    % Setup della figura 2 (Errore di orientazione)
+    fig = figure(2); 
+    clf(fig); % Pulisce i dati dell'esecuzione precedente
+    set(fig, 'Name', 'Orientation Error Comparison', 'Color', 'w');
     hold on;
+    
+    % --- DEFINIZIONE TEMPO DI CAMPIONAMENTO ---
+    T_s = 0.04; % [s]
     
     % Estrai, wrappa e plotta theta per ciascuna traiettoria
     for i = 1:4
@@ -33,9 +38,12 @@ function plot_4_unicycle_orientation_error(traj1, traj2, traj3, traj4, legend_la
         theta_error_wrapped = atan2(sin(theta_raw), cos(theta_raw));
         
         N = length(theta_error_wrapped);
-        campioni = 1:N; % Asse X: indice del campione
         
-        plot(campioni, theta_error_wrapped, ...
+        % --- ASSE DEL TEMPO ---
+        % Crea un vettore temporale che va da 0 a (N-1)*T_s
+        tempo = (0:N-1) * T_s; 
+        
+        plot(tempo, theta_error_wrapped, ...
              'Color', colors{i}, 'LineStyle', line_styles{i}, ...
              'LineWidth', 1.5, 'DisplayName', legend_labels{i});
     end
@@ -46,12 +54,17 @@ function plot_4_unicycle_orientation_error(traj1, traj2, traj3, traj4, legend_la
     
     % Impostazioni grafiche
     grid on;
-    xlabel('Campioni (Samples)');
+    
+    % Modifica della Label X
+    xlabel('Tempo [s]');
     ylabel('Errore di Orientazione \theta_e [rad]');
     title(plot_title);
     
     % Imposta i limiti dell'asse Y leggermente oltre [-pi, pi] per una migliore visualizzazione
     ylim([-pi - 0.5, pi + 0.5]);
+    
+    % Opzionale: puoi limitare l'asse X usando la lunghezza massima del tempo
+    % xlim([0, max(tempo)]);
     
     % Aggiunge tick marks speciali per Pi greco sull'asse Y
     yticks([-pi, -pi/2, 0, pi/2, pi]);

@@ -21,8 +21,15 @@ function plot_4_unicycle_trajectories(traj1, traj2, traj3, traj4, legend_labels,
     line_styles = {'-', '-', '-', '-'}; 
 
     % Setup della figura
-    figure('Name', 'Unicycle Trajectories Comparison', 'Color', 'w');
+
+    %figure('Name', 'Unicycle Trajectories Comparison', 'Color', 'w');
+    %hold on;
+    % Setup della figura 1 (Traiettorie)
+    fig = figure(1); 
+    clf(fig); % Pulisce i dati dell'esecuzione precedente
+    set(fig, 'Name', 'Unicycle Trajectories Comparison', 'Color', 'w');
     hold on;
+
     
     % 1. Disegna prima le linee delle traiettorie
     for i = 1:4

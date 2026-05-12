@@ -1,7 +1,7 @@
 %% TASK 1: POSTURE REGULATION
 
-clear all;
-close all;
+%clear all;
+%close all;
 addpath(genpath(fullfile(pwd,'..','utils')));
 %%
 
@@ -22,7 +22,7 @@ Q_INIT_2 =  [x1+(x3-x1)/2;y8;-pi/2];
 
 Q_INIT_3 =  [x3;y8;-pi/2];
 
-Q_INIT_4 =  [x3;y7;-pi/2];
+Q_INIT_4 =  [x2;y7;-pi/2];
 
 
 %% 
@@ -49,8 +49,11 @@ q_d = [-1.6; -1.1; 0];
 %k_1 = 1.5; 
 %k_2 = 1.5;
 %k_3 = 0.1;
-%control_par = [1.5, 1.5, 0.1]; buono 
-control_par = [2, 1.5, 0.1];
+%control_par = [1.5, 1.5, 0.1]; problemi angolo 
+%control_par = [10, 10, 10]; buono ma satura
+
+control_par = [1, 1, 10];
+
 
 Q_INIT = Q_INIT_1;
 
@@ -104,24 +107,39 @@ R_3 = diag(([sigma_motion_capture, sigma_motion_capture, sigma_motion_capture, .
 
 %%
 Q_INIT = Q_INIT_1;
+Q_INIT_LOC = Q_INIT;
+Z_INIT_EKF = [Q_INIT; 0; 0; 0; 0]; 
 sim('TASK1_Regulation.slx')
 q_WF1 = squeeze(ans.q_WF.signals.values);
+ws_des_1 = ans.ws_des.signals.values;
 
 %%
 Q_INIT = Q_INIT_2;
+Q_INIT_LOC = Q_INIT;
+Z_INIT_EKF = [Q_INIT; 0; 0; 0; 0];
 sim('TASK1_Regulation.slx')
 q_WF2 = squeeze(ans.q_WF.signals.values);
+ws_des_2 = ans.ws_des.signals.values;
+
 
 %%
 Q_INIT = Q_INIT_3;
+Q_INIT_LOC = Q_INIT;
+Z_INIT_EKF = [Q_INIT; 0; 0; 0; 0];
 sim('TASK1_Regulation.slx')
 q_WF3 = squeeze(ans.q_WF.signals.values);
+ws_des_3 = ans.ws_des.signals.values;
+
 
 
 %%
 Q_INIT = Q_INIT_4;
+Q_INIT_LOC = Q_INIT;
+Z_INIT_EKF = [Q_INIT; 0; 0; 0; 0];
 sim('TASK1_Regulation.slx')
 q_WF4 = squeeze(ans.q_WF.signals.values);
+ws_des_4 = ans.ws_des.signals.values;
+
 
 
 %%
@@ -130,3 +148,4 @@ labels = {'Q1', 'Q2', 'Q3', 'Q4'};
 
 plot_4_unicycle_trajectories(q_WF1,q_WF2,q_WF3,q_WF4,labels,'Traj');
 plot_4_unicycle_orientation_error(q_WF1,q_WF2,q_WF3,q_WF4,labels,'Orientation Error');
+plot_4_wheel_velocities(ws_des_1,ws_des_2,ws_des_3,ws_des_4,labels,'Wheels speed');
