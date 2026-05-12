@@ -18,11 +18,20 @@ x9 =  2.9;
 
 Q_INIT_1 =  [x1;y8;-pi/2];
 
-Q_INIT_2 =  [x1+(x3-x1)/2;y8;-pi/2];
+
+
+%Q_INIT_2 =  [x1+(x3-x1)/2;y8;-pi/2];
+
+%Q_INIT_3 =  [x3;y8;-pi/2];
+
+%Q_INIT_4 =  [x2;y7;-pi/2];
+
+Q_INIT_2 =  [x1;y7;-pi/2];
 
 Q_INIT_3 =  [x3;y8;-pi/2];
 
-Q_INIT_4 =  [x2;y7;-pi/2];
+Q_INIT_4 =  [x3;y7;-pi/2];
+
 
 
 %% 
