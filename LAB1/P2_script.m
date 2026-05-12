@@ -215,20 +215,21 @@ var_ws_L     = 1.960914e-07;
 var_ws_R     = 1.960914e-07;
 var_w_gyro   = 8.860510e-04;
 
-sigma_motion_capture = 5e-3;        % fix
-sigma_enc = ENCODER_QUANTIZATION/sqrt(12);  % theorical?
-sigma_imu = 1e-2;                   % from residual analysis
+sigma_motion_capture = 8e-3;        
+sigma_enc = ENCODER_QUANTIZATION/sqrt(12);  
+sigma_imu = 1e-2;                 
+           
  
 % EKF initil covariance
 P_INIT_EKF = diag([0.001, 0.001, 0.0175/6, 0.0175/6, 0.0175/6, 0.0175/6*T_s, 0.0175/6*T_s].^2);
 
 % EKF process covariance
-D = diag([0.001, 0.001, 0.0175/6, 0.0175/6, 0.0175/6, 0.0175/6*T_s, 0.0175/6*T_s].^2);
+% D = diag([0.001, 0.001, 0.0175/6, 0.0175/6, 0.0175/6, 0.0175/6*T_s, 0.0175/6*T_s].^2);
 
 % [x,y,theta,deltaphiL,deltaphi_R,deltaphi_dotL,deltaphi_dotR]
 % [position, .., heading (drift), enc_states, .. , .. , .. , ..]
 
-D = diag([1e-3, 1e-3, 1e-2, 0.0175/6, 0.0175/6, 0.0175/6*T_s, 0.0175/6*T_s].^2);
+D = diag([0.8e-3, 0.8e-3, 5e-3, 0.0175/6, 0.0175/6, 0.0175/6*T_s, 0.0175/6*T_s].^2);
     
 
 % Encoder + IMU + motion capture
