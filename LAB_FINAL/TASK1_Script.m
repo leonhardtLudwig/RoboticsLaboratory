@@ -45,10 +45,12 @@ tol = 0.1;
 
 q_d = [-1.6; -1.1; 0];
 
-k_1 = 1.5; 
-k_2 = 1.5;
-k_3 = 0.1;
-control_par = [k_1, k_2, k_3];
+
+%k_1 = 1.5; 
+%k_2 = 1.5;
+%k_3 = 0.1;
+%control_par = [1.5, 1.5, 0.1]; buono 
+control_par = [2, 1.5, 0.1];
 
 Q_INIT = Q_INIT_1;
 
@@ -94,6 +96,37 @@ D = diag([1.5e-3, 1.5e-3, 1e-2, 0.0175/6, 0.0175/6, 0.0175/6*T_s, 0.0175/6*T_s].
 R_3 = diag(([sigma_motion_capture, sigma_motion_capture, sigma_motion_capture, ...
              sigma_enc, sigma_enc, sigma_imu]).^2);
 
+%% 
+
+%q_WF = squeeze(out.q_WF.signals.values);
+
+%plot_unicycle_trajectory(q_WF, q_WF, 'nada');
+
+%%
+Q_INIT = Q_INIT_1;
+sim('TASK1_Regulation.slx')
+q_WF1 = squeeze(ans.q_WF.signals.values);
+
+%%
+Q_INIT = Q_INIT_2;
+sim('TASK1_Regulation.slx')
+q_WF2 = squeeze(ans.q_WF.signals.values);
+
+%%
+Q_INIT = Q_INIT_3;
+sim('TASK1_Regulation.slx')
+q_WF3 = squeeze(ans.q_WF.signals.values);
 
 
+%%
+Q_INIT = Q_INIT_4;
+sim('TASK1_Regulation.slx')
+q_WF4 = squeeze(ans.q_WF.signals.values);
 
+
+%%
+labels = {'Q1', 'Q2', 'Q3', 'Q4'};
+
+
+plot_4_unicycle_trajectories(q_WF1,q_WF2,q_WF3,q_WF4,labels,'Traj');
+plot_4_unicycle_orientation_error(q_WF1,q_WF2,q_WF3,q_WF4,labels,'Orientation Error');
