@@ -58,7 +58,7 @@ function plot_4_unicycle_trajectories(traj1, traj2, traj3, traj4, legend_labels,
     base_vertices = [base_L, 0; -0.3*base_L, 0.4*base_L; -0.3*base_L, -0.4*base_L];
 
     % Configurazione per i simboli
-    num_symbols_target = 12;   % Simboli per ogni traiettoria
+    num_symbols_target = 5;   % Simboli per ogni traiettoria
     symbol_opacity = 0.5;      % Trasparenza
     symbol_border_width = 0.5; % Spessore bordo
 
