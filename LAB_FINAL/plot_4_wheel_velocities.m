@@ -1,4 +1,4 @@
-function plot_4_wheel_velocities(vw1, vw2, vw3, vw4, legend_labels, plot_title)
+function plot_4_wheel_velocities(vw1, vw2, vw3, vw4, legend_labels, plot_title, fig_number)
     % PLOT_4_WHEEL_VELOCITIES Plotta le velocità delle due ruote per 4 traiettorie.
     %
     % Input:
@@ -25,7 +25,7 @@ function plot_4_wheel_velocities(vw1, vw2, vw3, vw4, legend_labels, plot_title)
     line_styles = {'-', '-', '-', '-'}; 
     
     % Setup della figura 3 (Velocità Ruote)
-    fig = figure(3); 
+    fig = figure(fig_number); 
     clf(fig); % Pulisce i dati dell'esecuzione precedente
     set(fig, 'Name', 'Wheel Velocities Comparison', 'Color', 'w');
     

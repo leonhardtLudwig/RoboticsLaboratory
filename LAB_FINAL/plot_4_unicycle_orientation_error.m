@@ -1,4 +1,4 @@
-function plot_4_unicycle_orientation_error(traj1, traj2, traj3, traj4, legend_labels, plot_title)
+function plot_4_unicycle_orientation_error(traj1, traj2, traj3, traj4, legend_labels, plot_title, fig_number)
     % PLOT_4_UNICYCLE_ORIENTATION_ERROR Plotta l'errore di orientazione 
     % (con angle wrapping) per 4 traiettorie rispetto al tempo.
     %
@@ -20,7 +20,7 @@ function plot_4_unicycle_orientation_error(traj1, traj2, traj3, traj4, legend_la
     line_styles = {'-', '-', '-', '-'}; 
     
     % Setup della figura 2 (Errore di orientazione)
-    fig = figure(2); 
+    fig = figure(fig_number); 
     clf(fig); % Pulisce i dati dell'esecuzione precedente
     set(fig, 'Name', 'Orientation Error Comparison', 'Color', 'w');
     hold on;

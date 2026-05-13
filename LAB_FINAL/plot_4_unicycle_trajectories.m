@@ -1,4 +1,4 @@
-function plot_4_unicycle_trajectories(traj1, traj2, traj3, traj4, legend_labels, plot_title)
+function plot_4_unicycle_trajectories(traj1, traj2, traj3, traj4, legend_labels, plot_title, fig_number)
     % PLOT_4_UNICYCLE_TRAJECTORIES Plots 4 different trajectories with unicycle symbols.
     %
     % Input:
@@ -25,7 +25,7 @@ function plot_4_unicycle_trajectories(traj1, traj2, traj3, traj4, legend_labels,
     %figure('Name', 'Unicycle Trajectories Comparison', 'Color', 'w');
     %hold on;
     % Setup della figura 1 (Traiettorie)
-    fig = figure(1); 
+    fig = figure(fig_number); 
     clf(fig); % Pulisce i dati dell'esecuzione precedente
     set(fig, 'Name', 'Unicycle Trajectories Comparison', 'Color', 'w');
     hold on;

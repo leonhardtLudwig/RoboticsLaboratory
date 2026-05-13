@@ -16,8 +16,9 @@ x8 =  1.1; y8 =  1.5;
 x9 =  2.9;
 
 
-Q_INIT_1 =  [x1;y8;-pi/2];
+%Q_INIT_1 =  [x1;y8;-pi/2];
 
+Q_INIT_1 = [-2.2; 0.7; -pi/2];
 
 
 %Q_INIT_2 =  [x1+(x3-x1)/2;y8;-pi/2];
@@ -36,7 +37,7 @@ Q_INIT_4 =  [x3;y7;-pi/2];
 
 %% 
 
-T_SIM = 60;
+T_SIM = 30;
 
 r_nominal = 0.03;
 d_nominal = 0.165;
@@ -50,7 +51,7 @@ d_actual = 0.16040;
 r = r_actual;
 d = d_actual;
 
-tol = 0.1;
+tol = 0.05;
 
 q_d = [-1.6; -1.1; 0];
 
@@ -61,7 +62,7 @@ q_d = [-1.6; -1.1; 0];
 %control_par = [1.5, 1.5, 0.1]; problemi angolo 
 %control_par = [10, 10, 10]; buono ma satura
 
-control_par = [1, 1, 10];
+control_par = [8, 1, 10];
 
 
 Q_INIT = Q_INIT_1;
@@ -95,14 +96,14 @@ var_motion_capture = 0.001;
 % EKF initil covariance
 P_INIT_EKF = diag([0.001, 0.001, 0.0175/6, 0.0175/6, 0.0175/6, 0.0175/6*T_s, 0.0175/6*T_s].^2);
 % EKF process covariance
-D = diag([0.001, 0.001, 0.0175/6, 0.0175/6, 0.0175/6, 0.0175/6*T_s, 0.0175/6*T_s].^2);
     
 
-sigma_motion_capture = 1e-3;    
+sigma_motion_capture = 8e-3;    
 sigma_enc = ENCODER_QUANTIZATION/sqrt(12); 
-sigma_imu = 0.03;                  
+sigma_imu = 1e-2;                  
 
-D = diag([1.5e-3, 1.5e-3, 1e-2, 0.0175/6, 0.0175/6, 0.0175/6*T_s, 0.0175/6*T_s].^2);
+%D = diag([0.8e-3, 0.8e-3, 5e-3, 0.0175/6, 0.0175/6, 0.0175/6*T_s, 0.0175/6*T_s].^2);
+D = diag([0.05, 0.05, 0.2, 0.0175/6, 0.0175/6, 0.0175/6*T_s, 0.0175/6*T_s].^2);
     
 % Encoder + IMU + motion capture
 R_3 = diag(([sigma_motion_capture, sigma_motion_capture, sigma_motion_capture, ...
@@ -123,38 +124,57 @@ q_WF1 = squeeze(ans.q_WF.signals.values);
 ws_des_1 = ans.ws_des.signals.values;
 
 %%
-Q_INIT = Q_INIT_2;
-Q_INIT_LOC = Q_INIT;
-Z_INIT_EKF = [Q_INIT; 0; 0; 0; 0];
-sim('TASK1_Regulation.slx')
-q_WF2 = squeeze(ans.q_WF.signals.values);
-ws_des_2 = ans.ws_des.signals.values;
+% Q_INIT = Q_INIT_2;
+% Q_INIT_LOC = Q_INIT;
+% Z_INIT_EKF = [Q_INIT; 0; 0; 0; 0];
+% sim('TASK1_Regulation.slx')
+% q_WF2 = squeeze(ans.q_WF.signals.values);
+% ws_des_2 = ans.ws_des.signals.values;
+% 
+% 
+% %%
+% Q_INIT = Q_INIT_3;
+% Q_INIT_LOC = Q_INIT;
+% Z_INIT_EKF = [Q_INIT; 0; 0; 0; 0];
+% sim('TASK1_Regulation.slx')
+% q_WF3 = squeeze(ans.q_WF.signals.values);
+% ws_des_3 = ans.ws_des.signals.values;
+% 
+% 
+% 
+% %%
+% Q_INIT = Q_INIT_4;
+% Q_INIT_LOC = Q_INIT;
+% Z_INIT_EKF = [Q_INIT; 0; 0; 0; 0];
+% sim('TASK1_Regulation.slx')
+% q_WF4 = squeeze(ans.q_WF.signals.values);
+% ws_des_4 = ans.ws_des.signals.values;
+
+
+% %%
+% labels = {'Q1', 'Q2', 'Q3', 'Q4'};
+% 
+% 
+% plot_4_unicycle_trajectories(q_WF1,q_WF2,q_WF3,q_WF4,labels,'Traj',1);
+% plot_4_unicycle_orientation_error(q_WF1,q_WF2,q_WF3,q_WF4,labels,'Orientation Error',2);
+% plot_4_wheel_velocities(ws_des_1,ws_des_2,ws_des_3,ws_des_4,labels,'Wheels speed',3);
+
+%% 
+
+load('dati_lab.mat')
+
+q_ekf_lab = squeeze(out.q_EKF.signals.values);
+q_mocap_cal_lab = squeeze(out.q_motion_capture_cal.signals.values);
+q_model_lab = squeeze(out.q_model.signals.values);
+vicon_gt = out.vicon_gt.signals.values';
+labels = {'Q-SIM', 'Q-EKF-LAB', 'Q-MOCAP-CAL-LAB', 'Q-MODEL-LAB'};
+
+plot_4_unicycle_trajectories(q_WF1,q_ekf_lab,q_mocap_cal_lab,q_model_lab,labels,'Traj',4);
 
 
 %%
-Q_INIT = Q_INIT_3;
-Q_INIT_LOC = Q_INIT;
-Z_INIT_EKF = [Q_INIT; 0; 0; 0; 0];
-sim('TASK1_Regulation.slx')
-q_WF3 = squeeze(ans.q_WF.signals.values);
-ws_des_3 = ans.ws_des.signals.values;
-
-
-
-%%
-Q_INIT = Q_INIT_4;
-Q_INIT_LOC = Q_INIT;
-Z_INIT_EKF = [Q_INIT; 0; 0; 0; 0];
-sim('TASK1_Regulation.slx')
-q_WF4 = squeeze(ans.q_WF.signals.values);
-ws_des_4 = ans.ws_des.signals.values;
-
-
-
-%%
-labels = {'Q1', 'Q2', 'Q3', 'Q4'};
-
-
-plot_4_unicycle_trajectories(q_WF1,q_WF2,q_WF3,q_WF4,labels,'Traj');
-plot_4_unicycle_orientation_error(q_WF1,q_WF2,q_WF3,q_WF4,labels,'Orientation Error');
-plot_4_wheel_velocities(ws_des_1,ws_des_2,ws_des_3,ws_des_4,labels,'Wheels speed');
+% z_EKF = squeeze(out.z_EKF.signals.values);
+% P_EKF = out.P_filt_EKF.signals.values;
+% 
+% analyze_EKF_results(z_EKF,P_EKF,q_model_lab,5);
+% plot_EKF_covariance_evolution(P_EKF,6);
