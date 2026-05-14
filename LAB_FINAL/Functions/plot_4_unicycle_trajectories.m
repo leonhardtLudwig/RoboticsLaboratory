@@ -1,12 +1,13 @@
 function plot_4_unicycle_trajectories(traj1, traj2, traj3, traj4, legend_labels, plot_title, fig_number)
-    % PLOT_4_UNICYCLE_TRAJECTORIES Plots 4 different trajectories with unicycle symbols.
-    %
-    % Input:
-    %   traj1, traj2, traj3, traj4 - Matrici 3xN (x, y, theta) delle traiettorie
-    %   legend_labels - Cell array con i 4 nomi per la legenda (es. {'A', 'B', 'C', 'D'})
-    %   plot_title    - Stringa per il titolo principale del grafico
+    % PLOT_4_UNICYCLE_TRAJECTORIES Plots trajectories with obstacles and zones from image_a1fd99.png.
 
-    % Verifica dimensioni
+    % --- 0. DEFINIZIONE VARIABILI DALLA TABELLA (image_a1fd99.png) ---
+    x1 = -2.90; x2 = -1.60; x3 = -1.50; x4 = -1.40; x5 = -0.60;
+    x6 = 0.20;  x7 = 1.00;  x8 = 1.45; x9 = 1.80; x10 = 2.20; x11 = 2.90;
+    y1 = -1.50; y2 = -1.10; y3 = -0.70; y4 = -0.30; y5 = -0.20;
+    y6 = 0.10;  y7 = 0.20;  y8 = 1.50;
+
+    % Verifica dimensioni traiettorie
     trajs = {traj1, traj2, traj3, traj4};
     for i = 1:4
         if size(trajs{i}, 1) ~= 3
@@ -14,96 +15,81 @@ function plot_4_unicycle_trajectories(traj1, traj2, traj3, traj4, legend_labels,
         end
     end
 
-    % Colori associati alle 4 traiettorie (Rosso, Blu, Verde, Magenta)
-    colors = {'r', 'b', 'g', 'm'};
-    
-    % Stili di linea (puoi modificarli se vuoi distinguere ideal/actual, es. '--')
-    line_styles = {'-', '-', '-', '-'}; 
-
-    % Setup della figura
-
-    %figure('Name', 'Unicycle Trajectories Comparison', 'Color', 'w');
-    %hold on;
-    % Setup della figura 1 (Traiettorie)
+    % Setup figura
     fig = figure(fig_number); 
-    clf(fig); % Pulisce i dati dell'esecuzione precedente
-    set(fig, 'Name', 'Unicycle Trajectories Comparison', 'Color', 'w');
+    clf(fig);
+    set(fig, 'Name', 'Environment Analysis', 'Color', 'w');
     hold on;
 
+    % --- 1. DISEGNA LE ZONE COLORATE (image_a1fd99.png) ---
+    % Zona Blu (INITIAL POSITION)
+    patch([x1 x3 x3 x1], [y6 y6 y8 y8], [0.75 0.85 0.95], 'EdgeColor', 'none', 'FaceAlpha', 0.6, 'DisplayName', 'Initial Position');
+    text(x1+0.2, (y6+y8)/2, 'INITIAL POSITION', 'FontWeight', 'bold', 'FontSize', 10);
+
+    % Zona Rossa (Corridoio)
+    patch([x5 x6 x6 x5], [y1 y1 y6 y6], [1.0 0.7 0.7], 'EdgeColor', 'none', 'FaceAlpha', 0.5, 'HandleVisibility', 'off');
+
+    % Zona Arancione (Target Area)
+    patch([x7 x11 x11 x7], [y1 y1 y8 y8], [0.9 0.6 0.4], 'EdgeColor', 'none', 'FaceAlpha', 0.4, 'HandleVisibility', 'off');
+
+    % --- 2. DISEGNA GLI OSTACOLI ---
+    obs_gray = [0.5 0.5 0.5];
+    obs_brown = [0.5 0.3 0.2];
+
+    % Blocco 1 (Grigio - Sinistra)
+    patch([x4 x5 x5 x4], [y3 y3 y6 y6], obs_gray, 'FaceAlpha', 0.8, 'EdgeColor', 'k', 'LineWidth', 1.5, 'DisplayName', 'Ostacoli');
     
-    % 1. Disegna prima le linee delle traiettorie
+    % Blocco 2 (Grigio - Destra)
+    patch([x6 x7 x7 x6], [y1 y1 y3 y3], obs_gray, 'FaceAlpha', 0.8, 'EdgeColor', 'k', 'LineWidth', 1.5, 'HandleVisibility', 'off');
+
+    % Blocco 3 (Marrone - Target Area)
+    patch([x9 x10 x10 x9], [y5 y5 y7 y7], obs_brown, 'FaceAlpha', 0.9, 'EdgeColor', 'k', 'LineWidth', 1.5, 'HandleVisibility', 'off');
+
+    % --- 3. DISEGNA LE LINEE NERE (Confini) ---
+    % Linea da (-1.4, -1.5) fino al secondo ostacolo (x6)
+    plot([x4 x6], [y1 y1], 'k', 'LineWidth', 2.5, 'HandleVisibility', 'off');
+    
+    % Linea da (1, 0.1) fino al primo ostacolo (x5)
+    plot([x7 x5], [y6 y6], 'k', 'LineWidth', 2.5, 'HandleVisibility', 'off');
+
+    % --- 4. DISEGNA TRAIETTORIE E SIMBOLI ---
+    colors = {'r', 'b', 'g', 'm'};
     for i = 1:4
-        plot(trajs{i}(1, :), trajs{i}(2, :), ...
-             'Color', colors{i}, 'LineStyle', line_styles{i}, ...
-             'LineWidth', 1.5, 'DisplayName', legend_labels{i});
+        plot(trajs{i}(1, :), trajs{i}(2, :), 'Color', colors{i}, 'LineWidth', 1.8, 'DisplayName', legend_labels{i});
     end
-    
-    % --- DYNAMIC SIZING FOR UNICYCLE SYMBOLS ---
-    % Concatena tutte le X e tutte le Y per trovare l'estensione totale del grafico
-    all_x = [traj1(1,:), traj2(1,:), traj3(1,:), traj4(1,:)];
-    all_y = [traj1(2,:), traj2(2,:), traj3(2,:), traj4(2,:)];
-    
-    max_x = max(all_x); min_x = min(all_x);
-    max_y = max(all_y); min_y = min(all_y);
-    span = max(max_x - min_x, max_y - min_y);
-    
-    if span == 0
-        span = 1; % Safety fallback
-    end
-    
-    % Dimensione dinamica al 4% dello span totale
-    base_L = span * 0.04; 
-    
-    % Vertici di base del triangolo
+
+    % Calcolo span per dimensioni dinamiche
+    all_x = [x1 x11]; all_y = [y1 y8];
+    span = max(max(all_x)-min(all_x), max(all_y)-min(all_y));
+    base_L = span * 0.035; 
     base_vertices = [base_L, 0; -0.3*base_L, 0.4*base_L; -0.3*base_L, -0.4*base_L];
 
-    % Configurazione per i simboli
-    num_symbols_target = 5;   % Simboli per ogni traiettoria
-    symbol_opacity = 0.5;      % Trasparenza
-    symbol_border_width = 0.5; % Spessore bordo
-
-    % 2. Disegna i simboli (triangolini) per tutte e 4 le traiettorie
+    num_symbols_target = 6;
     for i = 1:4
         plot_trajectory_symbols(trajs{i}(1,:), trajs{i}(2,:), trajs{i}(3,:), ...
-                                base_vertices, num_symbols_target, colors{i}, ...
-                                symbol_opacity, symbol_border_width);
+                                base_vertices, num_symbols_target, colors{i}, 0.5, 0.5);
     end
 
-    % Impostazioni grafiche
-    axis equal; 
-    grid on;
-    xlabel('X [m]');
-    ylabel('Y [m]');
-    title(plot_title);
-    legend('Location', 'best');
-    
+    % Grafica finale
+    axis equal; grid on;
+    xlim([x1-0.2, x11+0.2]); ylim([y1-0.2, y8+0.2]);
+    xlabel('X [m]', 'FontWeight', 'bold'); ylabel('Y [m]', 'FontWeight', 'bold');
+    title(plot_title, 'FontSize', 14);
+    legend('Location', 'northeastoutside');
     hold off;
 end
 
-% --- Helper Function to Plot Symbols ---
 function plot_trajectory_symbols(x, y, theta, base_v, num_target, color, alpha, border_w)
     N = length(x);
-    if N < 2, return; end % Nothing to plot
-    
-    % Calculate sampling interval
+    if N < 2, return; end
     step = max(1, round(N / num_target));
-    indices = 1:step:N;
-    
+    indices = unique([1, step:step:N, N]);
     for i = indices
-        % Get current state
         xi = x(i); yi = y(i); th_i = theta(i);
-        
-        % Create rotation matrix
         R = [cos(th_i), -sin(th_i); sin(th_i), cos(th_i)];
-        
-        % Rotate and translate base vertices
         rotated_v = (R * base_v')';
         translated_v = rotated_v + [xi, yi];
-        
-        % Plot the triangle patch
-        patch('Vertices', translated_v, 'Faces', [1 2 3], ...
-              'FaceColor', color, 'FaceAlpha', alpha, ...
-              'EdgeColor', color, 'LineWidth', border_w, ...
-              'HandleVisibility', 'off'); 
+        patch('Vertices', translated_v, 'Faces', [1 2 3], 'FaceColor', color, ...
+              'FaceAlpha', alpha, 'EdgeColor', color, 'LineWidth', border_w, 'HandleVisibility', 'off'); 
     end
 end
