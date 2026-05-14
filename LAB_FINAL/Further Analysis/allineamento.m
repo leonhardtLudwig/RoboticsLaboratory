@@ -1,3 +1,4 @@
+addpath('../Functions');
 % --- ALLINEAMENTO 100% GARANTITO: ROTAZIONE + TRASLAZIONE ---
 
 % 1. Punti chiave del MOCAP (World Frame)

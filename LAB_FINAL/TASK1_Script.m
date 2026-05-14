@@ -3,6 +3,7 @@
 %clear all;
 %close all;
 addpath(genpath(fullfile(pwd,'..','utils')));
+addpath('Functions');
 %%
 
 x1 = -2.9; y1 = -1.5;
@@ -120,10 +121,6 @@ R_3 = diag(([sigma_motion_capture, sigma_motion_capture, sigma_motion_capture, .
 
 %% 
 
-%q_WF = squeeze(out.q_WF.signals.values);
-
-%plot_unicycle_trajectory(q_WF, q_WF, 'nada');
-
 %%
 Q_INIT = Q_INIT_1;
 Q_INIT_LOC = Q_INIT;
@@ -133,40 +130,40 @@ q_WF1 = squeeze(ans.q_WF.signals.values);
 ws_des_1 = ans.ws_des.signals.values;
 
 %%
-% Q_INIT = Q_INIT_2;
-% Q_INIT_LOC = Q_INIT;
-% Z_INIT_EKF = [Q_INIT; 0; 0; 0; 0];
-% sim('TASK1_Regulation.slx')
-% q_WF2 = squeeze(ans.q_WF.signals.values);
-% ws_des_2 = ans.ws_des.signals.values;
-% 
-% 
-% %%
-% Q_INIT = Q_INIT_3;
-% Q_INIT_LOC = Q_INIT;
-% Z_INIT_EKF = [Q_INIT; 0; 0; 0; 0];
-% sim('TASK1_Regulation.slx')
-% q_WF3 = squeeze(ans.q_WF.signals.values);
-% ws_des_3 = ans.ws_des.signals.values;
-% 
-% 
-% 
-% %%
-% Q_INIT = Q_INIT_4;
-% Q_INIT_LOC = Q_INIT;
-% Z_INIT_EKF = [Q_INIT; 0; 0; 0; 0];
-% sim('TASK1_Regulation.slx')
-% q_WF4 = squeeze(ans.q_WF.signals.values);
-% ws_des_4 = ans.ws_des.signals.values;
+Q_INIT = Q_INIT_2;
+Q_INIT_LOC = Q_INIT;
+Z_INIT_EKF = [Q_INIT; 0; 0; 0; 0];
+sim('TASK1_Regulation.slx')
+q_WF2 = squeeze(ans.q_WF.signals.values);
+ws_des_2 = ans.ws_des.signals.values;
 
 
-% %%
-% labels = {'Q1', 'Q2', 'Q3', 'Q4'};
-% 
-% 
-% plot_4_unicycle_trajectories(q_WF1,q_WF2,q_WF3,q_WF4,labels,'Traj',1);
-% plot_4_unicycle_orientation_error(q_WF1,q_WF2,q_WF3,q_WF4,labels,'Orientation Error',2);
-% plot_4_wheel_velocities(ws_des_1,ws_des_2,ws_des_3,ws_des_4,labels,'Wheels speed',3);
+%%
+Q_INIT = Q_INIT_3;
+Q_INIT_LOC = Q_INIT;
+Z_INIT_EKF = [Q_INIT; 0; 0; 0; 0];
+sim('TASK1_Regulation.slx')
+q_WF3 = squeeze(ans.q_WF.signals.values);
+ws_des_3 = ans.ws_des.signals.values;
+
+
+
+%%
+Q_INIT = Q_INIT_4;
+Q_INIT_LOC = Q_INIT;
+Z_INIT_EKF = [Q_INIT; 0; 0; 0; 0];
+sim('TASK1_Regulation.slx')
+q_WF4 = squeeze(ans.q_WF.signals.values);
+ws_des_4 = ans.ws_des.signals.values;
+
+
+%%
+labels = {'Q1', 'Q2', 'Q3', 'Q4'};
+
+
+plot_4_unicycle_trajectories(q_WF1,q_WF2,q_WF3,q_WF4,labels,'Traj',1);
+plot_4_unicycle_orientation_error(q_WF1,q_WF2,q_WF3,q_WF4,labels,'Orientation Error',2);
+plot_4_wheel_velocities(ws_des_1,ws_des_2,ws_des_3,ws_des_4,labels,'Wheels speed',3);
 
 %% 
 
@@ -189,38 +186,4 @@ plot_4_unicycle_orientation_error(q_WF1,q_ekf_lab,q_mocap_cal_lab,q_model_lab,la
 labels = {'WS-SIM', 'WS-MEAS-LAB', 'WS-DES-LAB', '--'};
 plot_4_wheel_velocities(ws_des_1,ws_meas_lab,ws_des_lab,[0,0],labels,'ws',6);
 
-%%
-% z_EKF = squeeze(out.z_EKF.signals.values);
-% P_EKF = out.P_filt_EKF.signals.values;
-% 
-% analyze_EKF_results(z_EKF,P_EKF,q_model_lab,5);
-% plot_EKF_covariance_evolution(P_EKF,6);
- %% provo a calcolare displacement
 
- % delta_traj_mocap = q_model_lab-q_mocap_cal_lab;
- % delta_traj_ekf = q_model_lab-q_ekf_lab;
- % 
- % 
- % plot_unicycle_trajectory(delta_traj_mocap,delta_traj_ekf,'displacement');
-
- %% wheel speed input
-
-% N = size(ws_des_lab, 2);
-% t_vec = (0:N-1)' * 0.04;
-% 
-% input_wL = [t_vec, ws_des_lab(1, :)'];
-% input_wR = [t_vec, ws_des_lab(2, :)'];
-
-% N = size(ws_meas_lab, 1);
-% t_vec = (0:N-1)' * 0.04;
-% 
-% input_wL = [t_vec, ws_meas_lab(:, 1)];
-% input_wR = [t_vec, ws_meas_lab(:, 2)];
-
-%%
-
-%plot_unicycle_trajectory(q_model_lab,squeeze(out.q_ws_test.signals.values),'comp')
-
-labels = {'Q-MODEL-LAB', 'Q-WS-TEST-MEAS', 'Q-EKF', 'Q-WF1'};
-
-plot_4_unicycle_trajectories(q_model_lab,squeeze(out.q_ws_test.signals.values),q_ekf_lab,q_WF1,labels,'comp',10);

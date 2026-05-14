@@ -1,3 +1,4 @@
+addpath('../Functions');
 % --- PREPARAZIONE DATI ---
 % Assicurati che siano matrici 2xN (solo X e Y)
 ref  = q_model_lab(1:2, :); 
