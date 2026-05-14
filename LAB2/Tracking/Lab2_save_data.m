@@ -9,6 +9,8 @@ clc;
 
 
 %%
+i = 3;
+
 % Base configuration parameters
 results(i).T_s = T_s;
 %results(i).Ta = results.Ta; 
@@ -90,17 +92,18 @@ end
 disp("data save comleted")
 
 %% Assign the name to save the results
+res = results(3);
 
-results_test1 = results(i);
+
 
 %%
-plot_unicycle_2D(results_test1.q_des, 50)
+plot_unicycle_2D(res.q_des, 50)
 
 %% 
-plot_unicycle_2D(results_test1.q_motion_capture', 50)
+plot_unicycle_2D(res.q_motion_capture', 50)
 
 %%
-plot_unicycle_2D(results_test1.q_EKF, 50)
+plot_unicycle_2D(res.q_EKF, 50)
 
 
 

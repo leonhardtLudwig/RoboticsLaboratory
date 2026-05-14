@@ -63,10 +63,14 @@ wL_max = (v_circ - (d_actual/2)*w_circ) / r_actual
 wR_max = (v_circ + (d_actual/2)*w_circ) / r_actual
 
 
-%%
-controller_index = 3;   % 1->lin, 2->nonlin, 3->FL
-trj_index = 2;          % 2->circle, 5->S-traj
-state_type = 2;         % 1 = loc ekf, 2 = loc euler, 3 = loc rk2, 4 = exact loc
+%% set simulation params
+i = 2;
+
+p_loss_values = [1.0, 0.99, 0.90, 0];
+p_loss = p_loss_values(i); 
+
+controller_index = 1;   % 1->lin, 2->nonlin, 3->FL
+trj_index = 5;          % 2->circle, 5->S-traj
 
 
 if trj_index == 2
@@ -90,13 +94,10 @@ elseif trj_index == 5
     
 end
 
-%% VERSION WITH H FULL
+Q_INIT_LOC = Q_INIT;
 
-% set simulation params
-i = 2;
-
-p_loss_values = [1.0, 0.99, 0.90, 0];
-p_loss = p_loss_values(i); 
+Z_INIT_EKF = [Q_INIT; 0; 0; 0; 0]; 
+PHI_INIT = [0;0];
 
 
 %% Set controller parameters
@@ -118,11 +119,7 @@ elseif controller_index ==3
     control_par = [k1, k2,b];
 end
 
-%%
-Q_INIT_LOC = Q_INIT;
-
-Z_INIT_EKF = [Q_INIT; 0; 0; 0; 0]; 
-PHI_INIT = [0;0];
+%% Localization params
 
 % Observation matrix H for EKF
 
@@ -140,25 +137,21 @@ H_motion_cap = [1, 0, 0, 0, 0, 0, 0;
 % Covariance matrix
 
 ENCODER_QUANTIZATION = 2 * pi / 4096;
-var_IMU = 0.01;
-var_motion_capture = 0.001;
+
+sigma_motion_capture = 8e-3;        
+sigma_enc = ENCODER_QUANTIZATION/sqrt(12);
+sigma_imu = 1e-2;    
  
 % EKF initil covariance
-P_INIT_EKF = diag([0.001, 0.001, 0.0175/6, 0.0175/6, 0.0175/6, 0.0175/6*T_s, 0.0175/6*T_s].^2);
+P_INIT_EKF = diag([0.1, 0.1, 0.1, 0.0175/6, 0.0175/6, 0.0175/6*T_s, 0.0175/6*T_s].^2);
+
 % EKF process covariance
-D = diag([0.001, 0.001, 0.0175/6, 0.0175/6, 0.0175/6, 0.0175/6*T_s, 0.0175/6*T_s].^2);
-    
-
-sigma_motion_capture = 1e-3;    
-sigma_enc = ENCODER_QUANTIZATION/sqrt(12); 
-sigma_imu = 0.03;                  
-
-D = diag([1.5e-3, 1.5e-3, 1e-2, 0.0175/6, 0.0175/6, 0.0175/6*T_s, 0.0175/6*T_s].^2);
-    
+D = diag([0.8e-3, 0.8e-3, 5e-3, 0.0175/6, 0.0175/6, 0.0175/6*T_s, 0.0175/6*T_s].^2);    
 % Encoder + IMU + motion capture
 R_3 = diag(([sigma_motion_capture, sigma_motion_capture, sigma_motion_capture, ...
              sigma_enc, sigma_enc, sigma_imu]).^2);
 
+%%
 
 
 
