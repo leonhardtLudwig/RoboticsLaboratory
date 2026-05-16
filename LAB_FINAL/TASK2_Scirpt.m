@@ -22,9 +22,9 @@ Q_INIT = [-1.6;-1.1;0];
 
 %% 
 
-T_SIM = 20;
+T_SIM = 25;
 
-Ta = 3;
+Ta = 2;
 Tc = T_SIM-2*Ta;
 
 T_a_c = [Ta, Tc];
@@ -50,7 +50,7 @@ qf = [x7; y4; 0];
 q = [qi, qf];
 
 ki = 6; 
-kf = 4;
+kf = 5;
 
 k_trj = [ki,kf];
 
