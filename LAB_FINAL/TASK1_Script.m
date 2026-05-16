@@ -43,7 +43,7 @@ T_SIM = 30;
 r_nominal = 0.03;
 d_nominal = 0.165;
 
-omega_M = 10;
+omega_M = 8;
 T_s = 0.04;
 
 %r_actual = 0.03293;
@@ -67,7 +67,7 @@ q_d = [-1.6; -1.1; 0];
 %control_par = [1.5, 1.5, 0.1]; problemi angolo 
 %control_par = [10, 10, 10]; buono ma satura
 
-control_par = [1.5, 1.5, 0.3];
+control_par = [1, 2, 3.5];
 
 
 Q_INIT = Q_INIT_1;
@@ -167,23 +167,23 @@ plot_4_wheel_velocities(ws_des_1,ws_des_2,ws_des_3,ws_des_4,labels,'Wheels speed
 
 %% 
 
-load('dati_lab.mat')
-
-q_ekf_lab = squeeze(out.q_EKF.signals.values);
-q_mocap_cal_lab = squeeze(out.q_motion_capture_cal.signals.values);
-q_model_lab = squeeze(out.q_model.signals.values);
-vicon_gt = out.vicon_gt.signals.values';
-
-ws_meas_lab = out.ws_meas.signals.values;
-ws_des_lab = squeeze(out.ws_des.signals.values);
-ws_nosat_lab = squeeze(out.wheels_speed_robot_input_without_sat.signals.values)';
-
-labels = {'Q-SIM', 'Q-EKF-LAB', 'Q-MOCAP-CAL-LAB', 'Q-MODEL-LAB'};
-
-plot_4_unicycle_trajectories(q_WF1,q_ekf_lab,vicon_gt,q_model_lab,labels,'Traj',4);
-plot_4_unicycle_orientation_error(q_WF1,q_ekf_lab,q_mocap_cal_lab,q_model_lab,labels,'Ori error',5);
-
-labels = {'WS-SIM', 'WS-MEAS-LAB', 'WS-DES-LAB', '--'};
-plot_4_wheel_velocities(ws_des_1,ws_meas_lab,ws_des_lab,[0,0],labels,'ws',6);
-
-
+% load('dati_lab.mat')
+% 
+% q_ekf_lab = squeeze(out.q_EKF.signals.values);
+% q_mocap_cal_lab = squeeze(out.q_motion_capture_cal.signals.values);
+% q_model_lab = squeeze(out.q_model.signals.values);
+% vicon_gt = out.vicon_gt.signals.values';
+% 
+% ws_meas_lab = out.ws_meas.signals.values;
+% ws_des_lab = squeeze(out.ws_des.signals.values);
+% ws_nosat_lab = squeeze(out.wheels_speed_robot_input_without_sat.signals.values)';
+% 
+% labels = {'Q-SIM', 'Q-EKF-LAB', 'Q-MOCAP-CAL-LAB', 'Q-MODEL-LAB'};
+% 
+% plot_4_unicycle_trajectories(q_WF1,q_ekf_lab,vicon_gt,q_model_lab,labels,'Traj',4);
+% plot_4_unicycle_orientation_error(q_WF1,q_ekf_lab,q_mocap_cal_lab,q_model_lab,labels,'Ori error',5);
+% 
+% labels = {'WS-SIM', 'WS-MEAS-LAB', 'WS-DES-LAB', '--'};
+% plot_4_wheel_velocities(ws_des_1,ws_meas_lab,ws_des_lab,[0,0],labels,'ws',6);
+% 
+% 
