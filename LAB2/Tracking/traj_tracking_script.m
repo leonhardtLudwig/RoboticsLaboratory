@@ -69,8 +69,8 @@ i = 2;
 p_loss_values = [1.0, 0.99, 0.90, 0];
 p_loss = p_loss_values(i); 
 
-controller_index = 1;   % 1->lin, 2->nonlin, 3->FL
-trj_index = 5;          % 2->circle, 5->S-traj
+controller_index = 2;   % 1->lin, 2->nonlin, 3->FL
+trj_index = 2;          % 2->circle, 5->S-traj
 
 
 if trj_index == 2
@@ -108,7 +108,7 @@ if controller_index == 1
     control_par = [xi, a, 0];
 elseif controller_index ==2
     % nonlinear
-    xi = 0.7; 
+    xi = 0.7;         % 0.7,40 validi
     b = 40;
     control_par = [xi, b, 0];
 elseif controller_index ==3
