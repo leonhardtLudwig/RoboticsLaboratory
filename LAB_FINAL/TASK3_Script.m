@@ -38,8 +38,8 @@ d = d_actual;
 
 T_SIM = 25;
 
-T_line = 5;    % to go from x7 to x8
-T_circ = 13;     
+T_line = 3;    % to go from x7 to x8
+T_circ = 22;     
 
 p_loss = 0.9;
 
@@ -54,8 +54,8 @@ if controller_index == 1
     control_par = [xi, a, 0];
 elseif controller_index ==2
     % nonlinear
-    xi = 0.7; 
-    b = 40;
+    xi = 2; 
+    b = 3;
     control_par = [xi, b, 0];
 elseif controller_index ==3
     % feedback_linearization
