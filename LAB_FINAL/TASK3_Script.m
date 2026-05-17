@@ -18,7 +18,7 @@ x7 =  1.0; y7 =  0.2;
 x8 =  1.1; y8 =  1.5;
 x9 =  2.9;
 
-Q_INIT =        % ARRIVO TASK 2
+Q_INIT = [x7; y4; 0];       % ARRIVO TASK 2
 
 
 % General Params
@@ -37,9 +37,33 @@ d = d_actual;
 %% Planning
 
 T_SIM = 25;
-T_traj = 18;
 
+T_line = 5;    % to go from x7 to x8
+T_circ = 13;     
 
+p_loss = 0.9;
+
+%% Controller 
+
+controller_index = 2;   % 1->lin, 2->nonlin, 3->FL
+
+if controller_index == 1
+    % linear
+    xi = 0.9; 
+    a = 2;    % 1 to have zero saturation
+    control_par = [xi, a, 0];
+elseif controller_index ==2
+    % nonlinear
+    xi = 0.7; 
+    b = 40;
+    control_par = [xi, b, 0];
+elseif controller_index ==3
+    % feedback_linearization
+    k1 = 2; 
+    k2 = 2;
+    b = 0.05;   % potrebbe dare problemi (divisione per zero)
+    control_par = [k1, k2,b];
+end
 
 
 %% EKF
@@ -88,37 +112,5 @@ D = diag([0.8e-3, 0.8e-3, 5e-3, 0.0175/6, 0.0175/6, 0.0175/6*T_s, 0.0175/6*T_s].
 % Encoder + IMU + motion capture
 R_3 = diag(([sigma_motion_capture, sigma_motion_capture, sigma_motion_capture, ...
              sigma_enc, sigma_enc, sigma_imu]).^2);
-%%
-controller_index = 1;  
-control_par = update_control_par(controller_index);
 
 
-sim('TASK2.slx')
-q_WF1 = squeeze(ans.q_WF.signals.values);
-ws_des_1 = ans.ws_des.signals.values;
-
-q_des = squeeze(ans.q_des.signals.values);
-
-%%
-controller_index = 2;  
-control_par = update_control_par(controller_index);
-
-sim('TASK2.slx')
-q_WF2 = squeeze(ans.q_WF.signals.values);
-ws_des_2 = ans.ws_des.signals.values;
-%%
-controller_index = 3;  
-control_par = update_control_par(controller_index);
-sim('TASK2.slx')
-%q_WF3 = [0;0;0];
-%ws_des_3 = [0,0];
-q_WF3 = squeeze(ans.q_WF.signals.values);
-ws_des_3 = ans.ws_des.signals.values;
-
-%%
-labels = {'q_des', 'lin', 'nl', 'fl'};
-
-
-plot_4_unicycle_trajectories(q_des,q_WF1,q_WF2,q_WF3,labels,'Traj',1);
-plot_4_unicycle_orientation_error(q_des,q_WF1,q_WF2,q_WF3,labels,'Ori err',2);
-plot_4_wheel_velocities(ws_des_1,ws_des_2,ws_des_3,[0,0],{'lin', 'nl', 'fl', '--'},'Wheels speed',3);

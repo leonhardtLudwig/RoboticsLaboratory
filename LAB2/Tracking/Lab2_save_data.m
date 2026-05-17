@@ -108,7 +108,7 @@ plot_unicycle_2D(res.q_motion_capture, 50)
 %%
 plot_unicycle_2D(res.q_EKF, 50)
 %%
-
+plot_wheels_speed(res.ws_des, T_s);
 plot_wheels_speed(res.ws_meas, T_s);
 
 
