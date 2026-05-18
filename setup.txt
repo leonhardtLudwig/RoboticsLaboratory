@@ -1,0 +1,8 @@
+ssh robolab@147.162.118.154  
+
+source /home/turtlebot/ros/ros_ws_app/setup_ros_network_CLAB.bash
+
+source /home/turtlebot/ros/ros_ws_app/setup_ros_network.bash
+
+TURTLEBOT=turtlebot roslaunch sparcs_turtlebot turtlebot.launch number:=01 rosserial:=true camera:=false lidar:=false vicon:=false
+
