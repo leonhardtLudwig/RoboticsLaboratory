@@ -97,6 +97,13 @@ results(i).q_motion_capture = squeeze(results(i).q_motion_capture);
 
 res = results(1);
 
+%% SAVE
+name = 'test_1.mat';
+name_workspace = 'test1_workspace.mat'
+
+save(fullfile(folderName, name), 'res');
+save(fullfile(folderName, name));
+
 %%
 plot_wheels_speed(res.ws_des', T_s);
 %plot_wheels_speed(res.ws_meas, T_s);
