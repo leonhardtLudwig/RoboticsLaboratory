@@ -52,23 +52,22 @@ if controller_index == 1
     control_par = [xi, a, 0];
 elseif controller_index ==2
     % nonlinear
-    xi =1;         % xi = 1 normal <1 rapid >1 slow
-    b = 3;          % b alto per correggere errori laterali velocemente
+    xi =0.4;         % xi = 1 normal <1 rapid >1 slow
+    b = 20;          % b alto per correggere errori laterali velocemente
     control_par = [xi, b, 0];   
 
     control_par1 = [1, 8, 0];   % corregge err inziale (sat) ma poi
     control_par2 = [0.4, 4, 0];   % non corregge l'errore inziale ma converge meglio alla fine
-    control_par3 = [0.4, 12, 0];  % super performance
-    control_par4 = [0.5, 8, 0];  % buon compromesso
+    control_par3 = [0.4, 18, 0];  % super performance
+    control_par4 = [0.5, 8, 0];  % buon compromesso (dovrebbe essere meno scattoso)
 
     % TESTARE LA 3 e 4
     control_par = control_par3;
     
-    %xi=1;   
-    % b=5 inizia la sat (sicuro ma un pò lento)
-    
     % abbassando xi inizio a convergere più velocemente ma errore inziale e
     % robot scattoso (NON SCENDERE SOTTO i 0.4)
+
+    % alzando b diminuisco l'errore iniziale ma arriva la saturazione
 
 elseif controller_index ==3
     % feedback_linearization

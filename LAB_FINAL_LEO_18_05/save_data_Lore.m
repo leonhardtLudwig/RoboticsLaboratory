@@ -99,10 +99,10 @@ res = results(1);
 
 %% SAVE
 name = 'test_1.mat';
-name_workspace = 'test1_workspace.mat'
+name_workspace = 'test1_workspace.mat';
 
-save(fullfile(folderName, name), 'res');
-save(fullfile(folderName, name));
+save(fullfile('TASK3_DATI', name), 'res');
+save(fullfile('TASK3_DATI', name_workspace));
 
 %%
 plot_wheels_speed(res.ws_des', T_s);
